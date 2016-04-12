@@ -49,16 +49,16 @@
                     <table border="0">
                         <tbody>
                             <tr>
-                                <td>benutzername:</td>
-                                <td><input type="text" name="username" value="" /></td>
+                                <td>Benutzername:</td>
+                                <td><input type="text" name="username" value="" id="username"/></td>
                             </tr>
                             <tr>
-                                <td>passwort:</td>
-                                <td><input type="text" name="password" value="" /></td>
+                                <td>Passwort:</td>
+                                <td><input type="text" name="password" value="" id="password"/></td>
                             </tr>
                             <tr>
-                                <td><input type="submit" value="registrieren" /></td>
                                 <td><input type="submit" value="anmelden" /></td>
+                                <td><input type="submit" value="registrieren" /></td>
                             </tr>
                         </tbody>
                     </table>
