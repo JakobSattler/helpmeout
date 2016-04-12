@@ -5,6 +5,9 @@
  */
 package beans;
 
+import database.DBAccess;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 
 /**
@@ -13,42 +16,70 @@ import java.time.LocalDate;
  */
 public class User {
     String username;
-    String password;
+    String passwordHash;
     LocalDate registerDate;
+    
+    public static void main(String[] args) throws NoSuchAlgorithmException, Exception {
+        User.create("jakob", "01081997");
+    }
+    /**
+     * Creates a new user and saves it to the database
+     * 
+     * @param username username of the new user
+     * @param password password of the new user in plain text
+     * @throws NoSuchAlgorithmException
+     * @throws Exception 
+     */
+    public static void create(String username, String password) throws NoSuchAlgorithmException, Exception{
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(password.getBytes());
+        byte[] result = md.digest();
+        StringBuffer sb = new StringBuffer();
+        for (byte b : result) {
+                sb.append(String.format("%02x", b & 0xff));
+        }
+        String resultStr = sb.toString();
+        
+        User user = new User(username, resultStr, LocalDate.now());
+        DBAccess dba = DBAccess.getInstance();
+        dba.createUser(user);
+    }
     
     public User(){
         
     }
     
-    public User(String username, String password, LocalDate registerdate){
+    public User(String username, String password, LocalDate registerDate){
         this.username = username;
-        this.password = password;
-        this.registerDate = registerdate;
+        this.passwordHash = password;
+        this.registerDate = registerDate;
     }
 
-    public String getBenutzername() {
+    public String getUsername() {
         return username;
     }
 
-    public void setBenutzername(String username) {
+    public void setUsername(String username) {
         this.username = username;
     }
 
-    public String getPasswort() {
-        return password;
+    public String getPassword() {
+        return passwordHash;
     }
 
-    public void setPasswort(String password) {
-        this.password = password;
+    public void setPassword(String password) {
+        this.passwordHash = password;
     }
 
-    public LocalDate getErstelldatum() {
+    public LocalDate getRegisterDate() {
         return registerDate;
     }
 
-    public void setErstelldatum(LocalDate registerdate) {
-        this.registerDate = registerdate;
+    public void setRegisterDate(LocalDate registerDate) {
+        this.registerDate = registerDate;
     }
+
+    
     
     
 }
