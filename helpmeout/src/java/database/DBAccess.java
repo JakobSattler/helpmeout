@@ -103,6 +103,13 @@ public class DBAccess {
             + "(username, password, registerdate) "
             + "VALUES (?, ?, ?)";
 
+    /**
+     * Saves a user to the database
+     *
+     * @param user
+     * @throws database.DBAccess.UserAlreadyExistsException
+     * @throws Exception
+     */
     public void createUser(User user) throws UserAlreadyExistsException, Exception {
         if (getUserByUsername(user.getUsername()) == null) {
             Connection conn = connPool.getConnection();
@@ -119,12 +126,43 @@ public class DBAccess {
             createUserStmt.executeUpdate();
 
             connPool.releaseConnection(conn);
-        }
-        else{
+        } else {
             throw new UserAlreadyExistsException("User already exists!");
         }
     }
 
+    //Create comment
+    private final HashMap<Connection, PreparedStatement> createTopicStmts
+            = new HashMap<>();
+    private final String createTopicSqlString = "INSERT INTO topic "
+            + "(categoryid, username, title, createdate) "
+            + "VALUES (?, ?, ?, ?)";
+    /**
+     * Saves a topic to the database
+     * 
+     * @param categoryid ID of the category the topic belongs to
+     * @param username Name of the user which creates the topic
+     * @param title Title of the topic
+     * @param createDate Date when the topic is created
+     * @throws Exception 
+     */
+    public void createTopic(int categoryid, String username, String title,
+            LocalDate createDate) throws Exception {
+        Connection conn = connPool.getConnection();
+        PreparedStatement createTopicStmt = createTopicStmts.get(conn);
+        if (createTopicStmt == null) {
+            createTopicStmt = conn.prepareStatement(createTopicSqlString);
+            createTopicStmts.put(conn, createTopicStmt);
+        }
+
+        createTopicStmt.setInt(1, categoryid);
+        createTopicStmt.setString(2, username);
+        createTopicStmt.setString(3, title);
+        createTopicStmt.setDate(4, Date.valueOf(createDate));
+        createTopicStmt.executeUpdate();
+
+        connPool.releaseConnection(conn);
+    }
     //ConnectionPool
     private DBConnectionPool connPool;
 
@@ -135,13 +173,13 @@ public class DBAccess {
     public static void main(String[] args) {
         try {
             DBAccess dba = DBAccess.getInstance();
-            dba.createUser(new User("jakobe", "asdf", LocalDate.now()));
+            dba.createTopic(1, "jakob", "hallo", LocalDate.now());
         } catch (Exception ex) {
             System.out.println(ex.toString());
         }
     }
 
-    public class UserAlreadyExistsException extends Exception{
+    public class UserAlreadyExistsException extends Exception {
 
         public UserAlreadyExistsException() {
         }
@@ -161,7 +199,6 @@ public class DBAccess {
         public UserAlreadyExistsException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
             super(message, cause, enableSuppression, writableStackTrace);
         }
-        
-        
+
     }
 }

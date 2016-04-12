@@ -15,6 +15,14 @@
         <link rel="stylesheet" href="../css/cssmenu/styles.css">
         <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
         <script src="css/cssmenu/script.js"></script>
+        <script type="text/javascript">
+            function validate(var form){
+                if(form.password.value === form.password2.value){
+                    return true;
+                }
+                return false;
+            }
+        </script>
         <title>Registrieren</title>
     </head>
     <body>
@@ -22,7 +30,7 @@
             <h1>Help Me out! - Regestrierung</h1>
         </div>
         <div id="main">
-            <form action="POST">
+            <form method="POST" action="RegisterPageServlet">
                 <table border="0">
                     <tr>
                         <td>benutzername:</td>
@@ -35,14 +43,18 @@
                     </tr>
                     <tr>
                         <td>passwort:</td>
-                        <td><input type="text" name="password1" value="" /></td>
-                    </tr>
-                    <tr>
-                        <td>passwort bestätigen:</td>
                         <td><input type="text" name="password" value="" /></td>
                     </tr>
                     <tr>
-                        <td><input type="submit" value="registrieren" /></td>
+                        <td>passwort bestätigen:</td>
+                        <td><input type="text" name="password2" value="" /></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><input type="hidden" name="passwordError"/></td>
+                    </tr>
+                    <tr>
+                        <td><input type="submit" value="registrieren" onsubmit="return validate()"/></td>
                         <td><input type="reset" value="abbrechen" /></td>
                     </tr>
                     </tbody>
