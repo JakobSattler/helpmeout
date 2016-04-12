@@ -6,6 +6,7 @@
 package beans;
 
 import database.DBAccess;
+import database.DBAccess.UserAlreadyExistsException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
@@ -27,10 +28,12 @@ public class User {
      * 
      * @param username username of the new user
      * @param password password of the new user in plain text
+     * @return 
      * @throws NoSuchAlgorithmException
+     * @throws database.DBAccess.UserAlreadyExistsException
      * @throws Exception 
      */
-    public static void create(String username, String password) throws NoSuchAlgorithmException, Exception{
+    public static User create(String username, String password) throws NoSuchAlgorithmException, UserAlreadyExistsException, Exception{
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(password.getBytes());
         byte[] result = md.digest();
@@ -43,6 +46,7 @@ public class User {
         User user = new User(username, resultStr, LocalDate.now());
         DBAccess dba = DBAccess.getInstance();
         dba.createUser(user);
+        return user;
     }
     
     public User(){

@@ -141,7 +141,7 @@ public class DBAccess {
         }
     }
 
-    private class UserAlreadyExistsException extends Exception{
+    public class UserAlreadyExistsException extends Exception{
 
         public UserAlreadyExistsException() {
         }
