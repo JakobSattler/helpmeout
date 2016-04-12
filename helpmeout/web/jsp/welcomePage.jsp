@@ -19,7 +19,7 @@
             $(document).load($(window).bind("resize", changeDivOrder));
 
             function changeDivOrder(e) {
-                if ($(window).width() < 650)
+                if ($(window).width() < 660)
                 {
                     $("#main").remove().insertAfter($("#login"));
                 } else {
@@ -31,43 +31,45 @@
     </head>
     <body>
         <jsp:include page="/css/cssmenu/index.html"></jsp:include>
-        <div id="container">
-            <div id="head">
-                <h1>Help Me out!</h1>
-            </div>
-            <div id="main">
-                <h3>Mathe</h3>
-                <p>Geometrie</p>
-                <p>Terme</p>
-                <h3>Deutsch</h3>
-                <p>Lyrik</p>
-                <p>Texte</p>
-            </div>
-            <div id="side">
-                <div id="login">
-                    <h2>Login</h2>
-                    <table border="0">
-                        <tbody>
-                            <tr>
-                                <td>Benutzername:</td>
-                                <td><input type="text" name="username" value="" id="username"/></td>
-                            </tr>
-                            <tr>
-                                <td>Passwort:</td>
-                                <td><input type="text" name="password" value="" id="password"/></td>
-                            </tr>
-                            <tr>
-                                <td><input type="submit" value="anmelden" /></td>
-                                <td><input type="submit" value="registrieren" /></td>
-                            </tr>
-                        </tbody>
-                    </table>
+        <form action="" method="POST">
+            <div id="container">
+                <div id="head">
+                    <h1>Help Me out!</h1>
                 </div>
-                <div id="news">
-                    <h2>Aktuelles</h2>
-                    <p>News</p>
+                <div id="main">
+                    <h3>Mathe</h3>
+                    <p>Geometrie</p>
+                    <p>Terme</p>
+                    <h3>Deutsch</h3>
+                    <p>Lyrik</p>
+                    <p>Texte</p>
+                </div>
+                <div id="side">
+                    <div id="login">
+                        <h2>Login</h2>
+                        <table border="0">
+                            <tbody>
+                                <tr>
+                                    <td>Benutzername:</td>
+                                    <td><input type="text" name="username" value="" id="username"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Passwort:</td>
+                                    <td><input type="text" name="password" value="" id="password"/></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="submit" value="anmelden" /></td>
+                                    <td><a href="RegisterPageServlet"><input type="button" value="registrieren"/></a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="news">
+                        <h2>Aktuelles</h2>
+                        <p>News</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </form>
     </body>
 </html>
