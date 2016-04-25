@@ -20,7 +20,7 @@ import java.util.LinkedList;
  */
 public class DBAccess {
 
-    //class implemented ass singletone
+    //class implemented as singletone
     private static DBAccess theInstance = null;
 
     public static DBAccess getInstance() throws ClassNotFoundException {
@@ -54,9 +54,11 @@ public class DBAccess {
         ResultSet rs = getAllUsersStmt.executeQuery();
         while (rs.next()) {
             String username = rs.getString("username");
+            String email = rs.getString("email");
             String password = rs.getString("password");
+            String salt = rs.getString("salt");
             LocalDate registerDate = rs.getDate("registerdate").toLocalDate();
-            userList.add(new User(username, password, registerDate));
+            userList.add(new User(username, email, password, salt, registerDate));
         }
         connPool.releaseConnection(conn);
         return userList;
@@ -69,7 +71,7 @@ public class DBAccess {
             + "WHERE username = ?";
 
     /**
-     * Returns all users from the database
+     * Returns a user from the database
      *
      * @return
      * @throws Exception
@@ -78,30 +80,31 @@ public class DBAccess {
         Connection conn = connPool.getConnection();
         User user = null;
 
-        PreparedStatement getUserByUsername = getUserByUsernameStmts.get(conn);
-        if (getUserByUsername == null) {
-            getUserByUsername = conn.prepareStatement(getAllUsersSqlString);
-            getUserByUsernameStmts.put(conn, getUserByUsername);
+        PreparedStatement getUserByUsernameStmt = getUserByUsernameStmts.get(conn);
+        if (getUserByUsernameStmt == null) {
+            getUserByUsernameStmt = conn.prepareStatement(getAllUsersSqlString);
+            getUserByUsernameStmts.put(conn, getUserByUsernameStmt);
         }
 
-        ResultSet rs = getUserByUsername.executeQuery();
+        ResultSet rs = getUserByUsernameStmt.executeQuery();
         while (rs.next()) {
             String name = rs.getString("username");
+            String email = rs.getString("email");
             String password = rs.getString("password");
+            String salt = rs.getString("salt");
             LocalDate registerDate = rs.getDate("registerdate").toLocalDate();
-            user = new User(name, password, registerDate);
+            user = new User(name, email, password, salt, registerDate);
         }
         connPool.releaseConnection(conn);
         return user;
     }
 
     //Create user
-    //Get all users
     private final HashMap<Connection, PreparedStatement> createUserStmts
             = new HashMap<>();
     private final String createUserSqlString = "INSERT INTO user "
-            + "(username, password, registerdate) "
-            + "VALUES (?, ?, ?)";
+            + "(username, email, password, salt, registerdate) "
+            + "VALUES (?, ?, ?, ?, ?)";
 
     /**
      * Saves a user to the database
@@ -111,7 +114,7 @@ public class DBAccess {
      * @throws Exception
      */
     public void createUser(User user) throws UserAlreadyExistsException, Exception {
-        if (getUserByUsername(user.getUsername()) == null) {
+        if (!getUserByUsername(user.getUsername()).equals(user.getUsername())) {
             Connection conn = connPool.getConnection();
 
             PreparedStatement createUserStmt = createUserStmts.get(conn);
@@ -121,8 +124,10 @@ public class DBAccess {
             }
 
             createUserStmt.setString(1, user.getUsername());
-            createUserStmt.setString(2, user.getPassword());
-            createUserStmt.setDate(3, Date.valueOf(user.getRegisterDate()));
+            createUserStmt.setString(2, user.getEmail());
+            createUserStmt.setString(3, user.getPassword());
+            createUserStmt.setString(4, user.getSalt());
+            createUserStmt.setDate(5, Date.valueOf(user.getRegisterDate()));
             createUserStmt.executeUpdate();
 
             connPool.releaseConnection(conn);
@@ -131,20 +136,59 @@ public class DBAccess {
         }
     }
 
+    //Check if password is correct
+    private final HashMap<Connection, PreparedStatement> getPasswordByUserStmts
+            = new HashMap<>();
+    private final String getPasswordByUserSqlString = "SELECT password, salt FROM user "
+            + "WHERE username =  ? "
+            + "LIMIT 0 , 30";
+
+    /**
+     * Returns true if the password for a user is correct, false if not
+     * 
+     * @param username
+     * @param password md5-hash of the users password
+     * @return
+     * @throws Exception 
+     */
+    public boolean isPasswordCorrect(String username, String password) throws Exception {
+        Connection conn = connPool.getConnection();
+        Boolean passwordIsCorrect = false;
+
+        PreparedStatement getPasswordByUserStmt = getPasswordByUserStmts.get(conn);
+        if (getPasswordByUserStmt == null) {
+            getPasswordByUserStmt = conn.prepareStatement(getPasswordByUserSqlString);
+            getPasswordByUserStmts.put(conn, getPasswordByUserStmt);
+        }
+        getPasswordByUserStmt.setString(1, username);
+
+        ResultSet rs = getPasswordByUserStmt.executeQuery();
+        while (rs.next()) {
+            String salt = rs.getString("salt");
+            String passwordHash = rs.getString("password");
+            if (User.createPasswordHash(password + salt).equals(passwordHash)) {
+                passwordIsCorrect = true;
+            }
+        }
+        connPool.releaseConnection(conn);
+        return passwordIsCorrect;
+    }
+
     //Create comment
     private final HashMap<Connection, PreparedStatement> createTopicStmts
             = new HashMap<>();
     private final String createTopicSqlString = "INSERT INTO topic "
             + "(categoryid, username, title, createdate) "
             + "VALUES (?, ?, ?, ?)";
+
     /**
      * Saves a topic to the database
-     * 
+     *
      * @param categoryid ID of the category the topic belongs to
      * @param username Name of the user which creates the topic
      * @param title Title of the topic
      * @param createDate Date when the topic is created
-     * @throws Exception 
+     * @throws Exception
      */
     public void createTopic(int categoryid, String username, String title,
             LocalDate createDate) throws Exception {
@@ -174,6 +218,9 @@ public class DBAccess {
         try {
             DBAccess dba = DBAccess.getInstance();
             dba.createTopic(1, "jakob", "hallo", LocalDate.now());
+            for (User u : dba.getAllUsers()) {
+                System.out.println(u);
+            }
         } catch (Exception ex) {
             System.out.println(ex.toString());
         }

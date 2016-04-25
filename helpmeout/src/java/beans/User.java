@@ -9,54 +9,89 @@ import database.DBAccess;
 import database.DBAccess.UserAlreadyExistsException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.util.Random;
+import org.apache.tomcat.util.codec.binary.Base64;
 
 /**
  *
  * @author Jakob
  */
 public class User {
-    String username;
-    String passwordHash;
-    LocalDate registerDate;
-    
+
+    private String username;
+    private String email;
+    private String password;
+    private String salt;
+    private LocalDate registerDate;
+
     public static void main(String[] args) throws NoSuchAlgorithmException, Exception {
-        User.create("jakob", "01081997");
+        DBAccess dba = DBAccess.getInstance();
+        for (User user : dba.getAllUsers()) {
+            System.out.println(user);
+        }
+        System.out.println(dba.isPasswordCorrect("test123", "asdf"));
+        System.out.println(dba.isPasswordCorrect("test321", "jkl"));
     }
+
     /**
-     * Creates a new user and saves it to the database
+     * Returns the hash value of the password argument
      * 
-     * @param username username of the new user
      * @param password password of the new user in plain text
-     * @return 
-     * @throws NoSuchAlgorithmException
-     * @throws database.DBAccess.UserAlreadyExistsException
-     * @throws Exception 
+     * @return
+     * @throws NoSuchAlgorithmException 
      */
-    public static User create(String username, String password) throws NoSuchAlgorithmException, UserAlreadyExistsException, Exception{
+    public static String createPasswordHash(String password) throws NoSuchAlgorithmException{
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(password.getBytes());
         byte[] result = md.digest();
         StringBuffer sb = new StringBuffer();
         for (byte b : result) {
-                sb.append(String.format("%02x", b & 0xff));
+            sb.append(String.format("%02x", b & 0xff));
         }
-        String resultStr = sb.toString();
+        return sb.toString();
+    }
+    
+    /**
+     * Creates a new user and saves it to the database
+     *
+     * @param username 
+     * @param email
+     * @param password password of the new user in plain text
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws database.DBAccess.UserAlreadyExistsException
+     * @throws Exception
+     */
+    public static User create(String username, String email, String password) throws NoSuchAlgorithmException, UserAlreadyExistsException, Exception {
+        //password-salt
+        final Random r = new SecureRandom();
+        byte[] salt = new byte[32];
+        r.nextBytes(salt);
+        String passwordSalt = Base64.encodeBase64String(salt);
+
+        //password-hash
+        String passwordHash = User.createPasswordHash(password + passwordSalt);
         
-        User user = new User(username, resultStr, LocalDate.now());
+        User user = new User(username, email, passwordHash, passwordSalt,
+                LocalDate.now());
         DBAccess dba = DBAccess.getInstance();
         dba.createUser(user);
         return user;
     }
-    
-    public User(){
-        
+
+    public User() {
+
     }
-    
-    public User(String username, String password, LocalDate registerDate){
+
+    public User(String username, String email, String password,
+            String passwordSalt, LocalDate registerDate) {
         this.username = username;
-        this.passwordHash = password;
+        this.password = password;
+        this.email = email;
         this.registerDate = registerDate;
+        this.salt = passwordSalt;
     }
 
     public String getUsername() {
@@ -68,11 +103,11 @@ public class User {
     }
 
     public String getPassword() {
-        return passwordHash;
+        return password;
     }
 
     public void setPassword(String password) {
-        this.passwordHash = password;
+        this.password = password;
     }
 
     public LocalDate getRegisterDate() {
@@ -83,7 +118,25 @@ public class User {
         this.registerDate = registerDate;
     }
 
-    
-    
-    
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" + "username=" + username + ", password=" + password + ", salt=" + salt + ", registerDate=" + registerDate + '}';
+    }
+
 }

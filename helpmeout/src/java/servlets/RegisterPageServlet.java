@@ -71,7 +71,7 @@ public class RegisterPageServlet extends HttpServlet {
             String password = request.getParameter("password");
             String email = request.getParameter("email");
             
-            User.create(username, password);
+            User.create(username, password, email);
         } catch (DBAccess.UserAlreadyExistsException ex) {
             request.setAttribute("usernameError", "Benutzername existiert bereits!");
         } catch (Exception ex) {
