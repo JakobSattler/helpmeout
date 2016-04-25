@@ -30,13 +30,21 @@
         <title>Help Me Out</title>
     </head>
     <body>
+        <%! boolean login = false;%>
         <jsp:include page="/css/cssmenu/index.html"></jsp:include>
-        <form action="" method="POST">
+            <form action="WelcomePageServlet" method="POST">
+            <% if (request.getAttribute("login") != null) {
+                if((boolean)request.getAttribute("login"))
+                    login = true;
+                }%>
             <div id="container">
                 <div id="head">
                     <h1>Help Me out!</h1>
                 </div>
                 <div id="main">
+                    <% if (login) { %>
+                        <input type="submit" value="+ neues Thema hinzufügen" />
+                    <% }%>
                     <h3>Mathe</h3>
                     <p>Geometrie</p>
                     <p>Terme</p>
@@ -46,6 +54,11 @@
                 </div>
                 <div id="side">
                     <div id="login">
+                        <% if (login) { %>
+                            <h2>Willkommen BENUTZER</h2>
+                            <input type="submit" value="abmelden" />
+                        <% } 
+                        else { %>
                         <h2>Login</h2>
                         <table border="0">
                             <tbody>
@@ -63,6 +76,7 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <% } %>
                     </div>
                     <div id="news">
                         <h2>Aktuelles</h2>
