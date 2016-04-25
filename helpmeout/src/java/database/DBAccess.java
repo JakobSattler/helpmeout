@@ -174,7 +174,7 @@ public class DBAccess {
         return passwordIsCorrect;
     }
 
-    //Create comment
+    //Create topic
     private final HashMap<Connection, PreparedStatement> createTopicStmts
             = new HashMap<>();
     private final String createTopicSqlString = "INSERT INTO topic "
@@ -207,6 +207,14 @@ public class DBAccess {
 
         connPool.releaseConnection(conn);
     }
+    
+    //Create comment
+    private final HashMap<Connection, PreparedStatement> createCommentStmts
+            = new HashMap<>();
+    private final String createCommentSqlString = "INSERT INTO topic "
+            + "(categoryid, username, title, createdate) "
+            + "VALUES (?, ?, ?, ?)";
+    
     //ConnectionPool
     private DBConnectionPool connPool;
 
