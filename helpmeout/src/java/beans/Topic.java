@@ -13,6 +13,7 @@ import java.time.LocalDate;
  */
 public class Topic {
 
+    private int topicid;
     private int categoryid;
     private String username;
     private String title;
@@ -21,7 +22,9 @@ public class Topic {
     public Topic() {
     }
 
-    public Topic(int categoryid, String username, String title, LocalDate createDate) {
+    public Topic(int topicid, int categoryid,
+            String username, String title, LocalDate createDate) {
+        this.topicid = topicid;
         this.categoryid = categoryid;
         this.username = username;
         this.title = title;
@@ -58,5 +61,13 @@ public class Topic {
 
     public void setCreateDate(LocalDate createDate) {
         this.createDate = createDate;
+    }
+
+    public int getTopicid() {
+        return topicid;
+    }
+
+    public void setTopicid(int topicid) {
+        this.topicid = topicid;
     }
 }

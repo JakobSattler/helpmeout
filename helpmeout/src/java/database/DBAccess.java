@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -114,7 +115,7 @@ public class DBAccess {
      * @throws Exception
      */
     public void createUser(User user) throws UserAlreadyExistsException, Exception {
-        if (!getUserByUsername(user.getUsername()).equals(user.getUsername())) {
+        if (getUserByUsername(user.getUsername()) == null) {
             Connection conn = connPool.getConnection();
 
             PreparedStatement createUserStmt = createUserStmts.get(conn);
@@ -145,15 +146,15 @@ public class DBAccess {
 
     /**
      * Returns true if the password for a user is correct, false if not
-     * 
+     *
      * @param username
      * @param password md5-hash of the users password
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
-    public boolean isPasswordCorrect(String username, String password) throws Exception {
+    public boolean isLoginCorrect(String username, String password) throws Exception {
         Connection conn = connPool.getConnection();
-        Boolean passwordIsCorrect = false;
+        Boolean loginIsCorrect = false;
 
         PreparedStatement getPasswordByUserStmt = getPasswordByUserStmts.get(conn);
         if (getPasswordByUserStmt == null) {
@@ -167,11 +168,11 @@ public class DBAccess {
             String salt = rs.getString("salt");
             String passwordHash = rs.getString("password");
             if (User.createPasswordHash(password + salt).equals(passwordHash)) {
-                passwordIsCorrect = true;
+                loginIsCorrect = true;
             }
         }
         connPool.releaseConnection(conn);
-        return passwordIsCorrect;
+        return loginIsCorrect;
     }
 
     //Create topic
@@ -207,14 +208,31 @@ public class DBAccess {
 
         connPool.releaseConnection(conn);
     }
-    
+
     //Create comment
     private final HashMap<Connection, PreparedStatement> createCommentStmts
             = new HashMap<>();
-    private final String createCommentSqlString = "INSERT INTO topic "
-            + "(categoryid, username, title, createdate) "
+    private final String createCommentSqlString = "INSERT INTO comment "
+            + "(topicid, username, text, editdate) "
             + "VALUES (?, ?, ?, ?)";
-    
+
+    public void createComment(int topicid, String username, 
+            String text, LocalDate editDate) throws SQLException, Exception {
+        Connection conn = connPool.getConnection();
+        PreparedStatement createTopicStmt = createCommentStmts.get(conn);
+        if (createTopicStmt == null) {
+            createTopicStmt = conn.prepareStatement(createCommentSqlString);
+            createCommentStmts.put(conn, createTopicStmt);
+        }
+
+        createTopicStmt.setInt(1, topicid);
+        createTopicStmt.setString(2, username);
+        createTopicStmt.setString(3, text);
+        createTopicStmt.setDate(4, Date.valueOf(editDate));
+        createTopicStmt.executeUpdate();
+
+        connPool.releaseConnection(conn);
+    }
     //ConnectionPool
     private DBConnectionPool connPool;
 

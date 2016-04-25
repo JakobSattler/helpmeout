@@ -28,11 +28,9 @@ public class User {
 
     public static void main(String[] args) throws NoSuchAlgorithmException, Exception {
         DBAccess dba = DBAccess.getInstance();
-        for (User user : dba.getAllUsers()) {
-            System.out.println(user);
-        }
-        System.out.println(dba.isPasswordCorrect("test123", "asdf"));
-        System.out.println(dba.isPasswordCorrect("test321", "jkl"));
+        System.out.println(dba.isLoginCorrect("jakob", "blabla"));
+        System.out.println(dba.isLoginCorrect("jfkalsdö", "blabla"));
+        System.out.println(dba.isLoginCorrect("jakob", "jklö"));
     }
 
     /**
