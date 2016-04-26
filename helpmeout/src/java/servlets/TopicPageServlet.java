@@ -5,7 +5,6 @@
  */
 package servlets;
 
-import database.DBAccess;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -18,8 +17,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Julia
  */
-@WebServlet(name = "WelcomePageServlet", urlPatterns = {"/WelcomePageServlet"})
-public class WelcomePageServlet extends HttpServlet {
+@WebServlet(name = "TopicPageServlet", urlPatterns = {"/TopicPageServlet"})
+public class TopicPageServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -34,8 +33,7 @@ public class WelcomePageServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-
+            request.getRequestDispatcher("jsp/topicPage.jsp").forward(request, response);
         }
     }
 
@@ -51,9 +49,7 @@ public class WelcomePageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
         processRequest(request, response);
-
     }
 
     /**
@@ -67,20 +63,7 @@ public class WelcomePageServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        if (request != null) {
-            if (request.getAttribute("login") != null && (boolean) request.getAttribute("login")) {
-                request.setAttribute("login", false);
-                request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
-            } else {
-                String benutzername = request.getParameter("username");
-                String passoword = request.getParameter("password");
-
-                // TODO: User prüfen (gibt es Username? ist passwort zu username richtig?
-                request.setAttribute("login", true);
-                request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
-            }
-
-        }
+        processRequest(request, response);
     }
 
     /**

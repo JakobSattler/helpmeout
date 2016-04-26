@@ -43,7 +43,7 @@
                 </div>
                 <div id="main">
                     <% if (login) { %>
-                        <input type="submit" value="+ neues Thema hinzufügen" />
+                    <a href="TopicPageServlet"><input type="button" value="+ neues Thema hinzufügen" /></a>
                     <% }%>
                     <h3>Mathe</h3>
                     <p>Geometrie</p>
