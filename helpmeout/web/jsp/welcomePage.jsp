@@ -4,6 +4,8 @@
     Author     : Julia
 --%>
 
+<%@page import="beans.*"%>
+<%@page import="java.util.LinkedList"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -30,35 +32,60 @@
         <title>Help Me Out</title>
     </head>
     <body>
-        <%! boolean login = false;%>
+        <%! boolean login = false;
+            String pageID;
+            LinkedList<Category> categories = new LinkedList<>();
+            Category category;
+            LinkedList<Topic> topics = new LinkedList<>();
+            Topic topic;
+            LinkedList<Comment> comments = new LinkedList<>();%>
         <jsp:include page="/css/cssmenu/index.html"></jsp:include>
             <form action="WelcomePageServlet" method="POST">
             <% if (session.getAttribute("loggedIn") != null) {
-                if((boolean)session.getAttribute("loggedIn"))
-                    login = true;
+                    if ((boolean) session.getAttribute("loggedIn")) {
+                        login = true;
+                    }
                 }%>
             <div id="container">
                 <div id="head">
                     <h1>Help Me out!</h1>
                 </div>
                 <div id="main">
-                    <% if (login) { %>
+                    <% if (pageID.equals("overview")) {
+                            if (login) { %>
                     <a href="TopicPageServlet"><input type="button" value="+ neues Thema hinzufügen" /></a>
-                    <% }%>
-                    <h3>Mathe</h3>
-                    <p>Geometrie</p>
-                    <p>Terme</p>
-                    <h3>Deutsch</h3>
-                    <p>Lyrik</p>
-                    <p>Texte</p>
+                        <% }%>
+                        <% for (Category cat : categories) {%>
+                    <h3><%=cat.getTitle()%></h3>
+                    <% for (Topic top : topics) {
+                            if (top.getCategoryid() == cat.getCategoryid()) {%>
+                    <p><%=top.getTitle()%></p>
+                    <%}
+                        }%>
+                    <% }
+                    } else if (pageID.equals("category")) {%>
+                    <h3><%=category.getTitle()%></h3>
+                    <% for (Topic top : topics) {
+                            if (top.getCategoryid() == category.getCategoryid()) {%>
+                            <h4>top.getTitle()</h4>
+                    <%}
+                        }%>
+                    <%} else if (pageID.equals("topic")) { %>
+                    <h3><%=category.getTitle()%> / <%=topic.getTitle()%></h3>
+                    <% for(Comment com : comments) {
+                        if(com.getTopicid() == topic.getTopicid()){ %>
+                            
+                        <%}
+                    }%>
+                    <%}%>
                 </div>
                 <div id="side">
                     <div id="login">
                         <% if (login) { %>
-                            <h2>Willkommen BENUTZER</h2>
-                            <input type="submit" value="abmelden" />
-                        <% } 
-                        else { %>
+                        <h2>Willkommen BENUTZER</h2>
+                        <input type="submit" value="abmelden" />
+                        <input type="hidden" value="logout" id="logout"/>
+                        <% } else { %>
                         <h2>Login</h2>
                         <table border="0">
                             <tbody>
@@ -68,15 +95,20 @@
                                 </tr>
                                 <tr>
                                     <td>Passwort:</td>
-                                    <td><input type="text" name="password" value="" id="password"/></td>
+                                    <td><input type="password" name="password" value="" id="password"/></td>
                                 </tr>
                                 <tr>
                                     <td><input type="submit" value="anmelden" /></td>
                                     <td><a href="RegisterPageServlet"><input type="button" value="registrieren"/></a></td>
                                 </tr>
+                                <tr>
+                                    <% if(request.getAttribute("loginError") != null){ %>
+                                    <td><%=request.getAttribute("loginError")%></td>
+                                    <% } %>
+                                </tr>
                             </tbody>
                         </table>
-                        <% } %>
+                        <% }%>
                     </div>
                     <div id="news">
                         <h2>Aktuelles</h2>

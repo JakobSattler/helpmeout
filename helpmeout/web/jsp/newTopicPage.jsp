@@ -43,8 +43,8 @@
                                     </textarea></td>
                             </tr>
                             <tr>
-                                <td><input type="submit" value="Hinzufügen" /></td>
-                                <td><input type="submit" value="Abbrechen" /></td>
+                                <td><input type="submit" value="hinzufügen" /></td>
+                                <td><input type="submit" value="abbrechen" /></td>
                             </tr>
                         </tbody>
                     </table>

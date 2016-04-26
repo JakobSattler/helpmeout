@@ -33,7 +33,7 @@ public class TopicPageServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            request.getRequestDispatcher("jsp/topicPage.jsp").forward(request, response);
+            request.getRequestDispatcher("jsp/newTopicPage.jsp").forward(request, response);
         }
     }
 
