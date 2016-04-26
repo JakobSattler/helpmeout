@@ -33,8 +33,8 @@
         <%! boolean login = false;%>
         <jsp:include page="/css/cssmenu/index.html"></jsp:include>
             <form action="WelcomePageServlet" method="POST">
-            <% if (request.getAttribute("login") != null) {
-                if((boolean)request.getAttribute("login"))
+            <% if (session.getAttribute("loggedIn") != null) {
+                if((boolean)session.getAttribute("loggedIn"))
                     login = true;
                 }%>
             <div id="container">

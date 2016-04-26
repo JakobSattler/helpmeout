@@ -5,11 +5,15 @@
  */
 package servlets;
 
+import beans.User;
 import database.DBAccess;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +37,7 @@ public class WelcomePageServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
 
@@ -51,9 +56,24 @@ public class WelcomePageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
         processRequest(request, response);
-
+        
+        //Check if user is logged in
+        Cookie[] cookies = request.getCookies();
+        System.out.println(cookies);
+        Cookie sessionIDCookie = null;
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("sessionID")) {
+                sessionIDCookie = cookie;
+            }
+        }
+        String sessionID = (String) request.getSession().getAttribute("sessionID");
+        if (sessionIDCookie != null && sessionID != null) {
+            request.getSession().setAttribute("loggedIn", 
+                    sessionID.equals(sessionIDCookie.getValue()));
+        }
+        
+        
     }
 
     /**
@@ -72,12 +92,32 @@ public class WelcomePageServlet extends HttpServlet {
                 request.setAttribute("login", false);
                 request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
             } else {
-                String benutzername = request.getParameter("username");
-                String passoword = request.getParameter("password");
+                try {
+                    String username = request.getParameter("username");
+                    String password = request.getParameter("password");
+                    DBAccess dba = DBAccess.getInstance();
 
-                // TODO: User prüfen (gibt es Username? ist passwort zu username richtig?
-                request.setAttribute("login", true);
-                request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
+                    if (dba.isLoginCorrect(username, password)) {
+                        User user = dba.getUserByUsername(username);
+                        String sessionID = user.getPassword() + user.getSalt();
+                        request.getSession().setAttribute("sessionID", sessionID);
+                        Cookie cookie = new Cookie("sessionID",
+                                user.getPassword() + user.getSalt());
+                        response.addCookie(cookie);
+                        request.setAttribute("login", true);
+                        response.sendRedirect("WelcomePageServlet");
+                    } else {
+                        request.setAttribute("loginError", "Username oder "
+                                + "Passwort falsch!");
+                        request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
+                    }
+                    // TODO: User prüfen (gibt es Username? ist passwort zu username richtig?
+
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(WelcomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (Exception ex) {
+                    Logger.getLogger(WelcomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
 
         }
