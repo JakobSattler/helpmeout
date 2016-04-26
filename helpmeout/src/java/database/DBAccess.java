@@ -6,6 +6,9 @@
 package database;
 
 import beans.User;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -14,6 +17,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Random;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.tomcat.util.codec.binary.Base64;
 
 /**
  *
@@ -31,6 +38,36 @@ public class DBAccess {
         return theInstance;
     }
 
+    /**
+     * Returns the hash value of the password argument
+     *
+     * @param password password of the new user in plain text
+     * @return
+     * @throws NoSuchAlgorithmException
+     */
+    public String createPasswordHash(String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(password.getBytes());
+        byte[] result = md.digest();
+        StringBuffer sb = new StringBuffer();
+        for (byte b : result) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Returns a new random salt
+     *
+     * @return
+     */
+    public String createPasswordSalt() {
+        final Random r = new SecureRandom();
+        byte[] salt = new byte[32];
+        r.nextBytes(salt);
+        String passwordSalt = Base64.encodeBase64String(salt);
+        return passwordSalt;
+    }
     //Get all users
     private final HashMap<Connection, PreparedStatement> getAllUsersStmts
             = new HashMap<>();
@@ -74,6 +111,7 @@ public class DBAccess {
     /**
      * Returns a user from the database
      *
+     * @param username
      * @return
      * @throws Exception
      */
@@ -83,9 +121,10 @@ public class DBAccess {
 
         PreparedStatement getUserByUsernameStmt = getUserByUsernameStmts.get(conn);
         if (getUserByUsernameStmt == null) {
-            getUserByUsernameStmt = conn.prepareStatement(getAllUsersSqlString);
+            getUserByUsernameStmt = conn.prepareStatement(getUserByUsernameSqlString);
             getUserByUsernameStmts.put(conn, getUserByUsernameStmt);
         }
+        getUserByUsernameStmt.setString(1, username);
 
         ResultSet rs = getUserByUsernameStmt.executeQuery();
         while (rs.next()) {
@@ -95,6 +134,7 @@ public class DBAccess {
             String salt = rs.getString("salt");
             LocalDate registerDate = rs.getDate("registerdate").toLocalDate();
             user = new User(name, email, password, salt, registerDate);
+            System.out.println(user);
         }
         connPool.releaseConnection(conn);
         return user;
@@ -110,12 +150,16 @@ public class DBAccess {
     /**
      * Saves a user to the database
      *
-     * @param user
+     * @param username
+     * @param password password in plain text
+     * @param email
      * @throws database.DBAccess.UserAlreadyExistsException
      * @throws Exception
      */
-    public void createUser(User user) throws UserAlreadyExistsException, Exception {
-        if (getUserByUsername(user.getUsername()) == null) {
+    public void createUser(String username, String password,
+            String email) throws UserAlreadyExistsException, Exception {
+        System.out.println(getUserByUsername(username) == null);
+        if (getUserByUsername(username) == null) {
             Connection conn = connPool.getConnection();
 
             PreparedStatement createUserStmt = createUserStmts.get(conn);
@@ -123,12 +167,14 @@ public class DBAccess {
                 createUserStmt = conn.prepareStatement(createUserSqlString);
                 createUserStmts.put(conn, createUserStmt);
             }
+            String passwordSalt = createPasswordSalt();
+            String passwordHash = createPasswordHash(password + passwordSalt);
 
-            createUserStmt.setString(1, user.getUsername());
-            createUserStmt.setString(2, user.getEmail());
-            createUserStmt.setString(3, user.getPassword());
-            createUserStmt.setString(4, user.getSalt());
-            createUserStmt.setDate(5, Date.valueOf(user.getRegisterDate()));
+            createUserStmt.setString(1, username);
+            createUserStmt.setString(2, email);
+            createUserStmt.setString(3, passwordHash);
+            createUserStmt.setString(4, passwordSalt);
+            createUserStmt.setDate(5, Date.valueOf(LocalDate.now()));
             createUserStmt.executeUpdate();
 
             connPool.releaseConnection(conn);
@@ -216,7 +262,7 @@ public class DBAccess {
             + "(topicid, username, text, editdate) "
             + "VALUES (?, ?, ?, ?)";
 
-    public void createComment(int topicid, String username, 
+    public void createComment(int topicid, String username,
             String text, LocalDate editDate) throws SQLException, Exception {
         Connection conn = connPool.getConnection();
         PreparedStatement createTopicStmt = createCommentStmts.get(conn);
@@ -236,6 +282,23 @@ public class DBAccess {
     //ConnectionPool
     private DBConnectionPool connPool;
 
+    public boolean isUserLoggedIn(HttpServletRequest request) {
+        boolean loggedIn = false;
+        Cookie[] cookies = request.getCookies();
+        System.out.println(cookies);
+        Cookie sessionIDCookie = null;
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("sessionID")) {
+                sessionIDCookie = cookie;
+            }
+        }
+        String sessionID = (String) request.getSession().getAttribute("sessionID");
+        if (sessionIDCookie != null && sessionID != null) {
+            loggedIn = sessionIDCookie.getValue().equals(sessionID);
+        }
+        return loggedIn;
+    }
+
     private DBAccess() throws ClassNotFoundException {
         connPool = DBConnectionPool.getInstance();
     }
@@ -243,10 +306,7 @@ public class DBAccess {
     public static void main(String[] args) {
         try {
             DBAccess dba = DBAccess.getInstance();
-            dba.createTopic(1, "jakob", "hallo", LocalDate.now());
-            for (User u : dba.getAllUsers()) {
-                System.out.println(u);
-            }
+            dba.createUser("jakob", "asdf", "asdf");
         } catch (Exception ex) {
             System.out.println(ex.toString());
         }

@@ -36,11 +36,16 @@ public class WelcomePageServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-
+        try {
+            response.setContentType("text/html;charset=UTF-8");
+            DBAccess dba = DBAccess.getInstance();
+            request.getSession().setAttribute("loggedIn", dba.isUserLoggedIn(request));
+            request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
+            try (PrintWriter out = response.getWriter()) {
+                /* TODO output your page here. You may use following sample code. */
+            }
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(WelcomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -57,23 +62,7 @@ public class WelcomePageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
-        
-        //Check if user is logged in
-        Cookie[] cookies = request.getCookies();
-        System.out.println(cookies);
-        Cookie sessionIDCookie = null;
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("sessionID")) {
-                sessionIDCookie = cookie;
-            }
-        }
-        String sessionID = (String) request.getSession().getAttribute("sessionID");
-        if (sessionIDCookie != null && sessionID != null) {
-            request.getSession().setAttribute("loggedIn", 
-                    sessionID.equals(sessionIDCookie.getValue()));
-        }
-        
-        
+
     }
 
     /**

@@ -51,33 +51,7 @@ public class User {
         return sb.toString();
     }
     
-    /**
-     * Creates a new user and saves it to the database
-     *
-     * @param username 
-     * @param email
-     * @param password password of the new user in plain text
-     * @return
-     * @throws NoSuchAlgorithmException
-     * @throws database.DBAccess.UserAlreadyExistsException
-     * @throws Exception
-     */
-    public static User create(String username, String email, String password) throws NoSuchAlgorithmException, UserAlreadyExistsException, Exception {
-        //password-salt
-        final Random r = new SecureRandom();
-        byte[] salt = new byte[32];
-        r.nextBytes(salt);
-        String passwordSalt = Base64.encodeBase64String(salt);
-
-        //password-hash
-        String passwordHash = User.createPasswordHash(password + passwordSalt);
-        
-        User user = new User(username, email, passwordHash, passwordSalt,
-                LocalDate.now());
-        DBAccess dba = DBAccess.getInstance();
-        dba.createUser(user);
-        return user;
-    }
+    
 
     public User() {
 
