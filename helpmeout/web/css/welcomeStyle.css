@@ -58,6 +58,41 @@ h3{
     float:left;
 }
 
+#commentN1{
+    width: 80%;
+    color:white;
+    background-color: #FFA500;
+    float:left;    
+}
+
+#commentN2{
+    width: 80%;
+    color:white;
+    background-color: #FF8C00;
+    float:right;    
+}
+
+#commentN3{
+    width: 80%;
+    color:white;
+    background-color: #FF7F50;
+    float:left;    
+}
+
+#commentN4{
+    width: 80%;
+    color:white;
+    background-color: #FF6347;
+    float:right;    
+}
+
+#commentN5{
+    width: 80%;
+    color:white;
+    background-color: #FF4500;
+    float:left;    
+}
+
 #side{
     width:30%;
     height:auto;
