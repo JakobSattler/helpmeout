@@ -72,10 +72,21 @@
                         }%>
                     <%} else if (pageID.equals("topic")) {%>
                     <h3><%=category.getTitle()%> / <%=topic.getTitle()%></h3>
-                    <% for(Comment com : comments){
+                    <% int i = 0;
+                    for(Comment com : comments){
                         if(com.getTopicid() == topic.getTopicid()) { 
-                    %>    
-                        <div><%=com.getText()%></div>
+                            i++;
+                            if(i%5 == 0){ %>
+                                <div id="commentN1"><%=com.getText()%></div>
+                            <% } else if (i%5 == 1){ %>
+                                <div id="commentN2"><%=com.getText()%></div>
+                            <% } else if (i%5 == 2){ %>
+                                <div id="commentN3"><%=com.getText()%></div>
+                            <% } else if (i%5 == 3){ %>
+                                <div id="commentN4"><%=com.getText()%></div>
+                            <% } else { %>
+                                <div id="commentN5"><%=com.getText()%></div>
+                            <%}%>    
                       <%  }
                     } %>
                     <% } %>
