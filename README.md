@@ -1,2 +1,0 @@
-# helpmeout
-Schülerforum "HelpMeOut"
