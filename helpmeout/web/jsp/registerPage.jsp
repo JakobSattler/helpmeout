@@ -17,19 +17,20 @@
         <script src="css/cssmenu/script.js"></script>
         <script type="text/javascript">
             function validate(form) {
-                alert(document.getElementById("passwordError"));
+                var passwordError = document.getElementById("error");
                 alert("validate");
-                if (form.password.value !== form.password2.value ||) {
-                    document.getElementById("passwordError").innerHTML = "Passwörter stimmen nicht überein!";
-                    return false;
-                }
-                else if(form.username.value === "" || form.username.value === null
+
+                if (form.username.value === "" || form.username.value === null
                         || form.password.value === "" || form.password.value === null
                         || form.password2.value === "" || form.password.value === null
-                        || form.email.value === "" || form.email.value === null){
-                    document.getElementById("passwordError").innerHTML = "Es müssen alle Felder ausgefüllt sein!";
+                        || form.email.value === "" || form.email.value === null) {
+                    passwordError.textContent = "Es müssen alle Felder ausgefüllt sein!";
+                    return false;
+                } else if (form.password.value !== form.password2.value) {
+                    passwordError.textContent = "Passwörter stimmen nicht überein!";
+                    return false;
                 }
-                
+
                 return true;
             }
         </script>
@@ -42,7 +43,7 @@
                 <h1>Help Me out! - Regestrierung</h1>
             </div>
             <div id="main">
-                <form method="POST" action="WelcomePageServlet" 
+                <form method="POST" action="RegisterPageServlet" 
                       onsubmit="return validate(this)">
                     <table border="0">
                         <tr>
@@ -63,15 +64,15 @@
                             <td><input type="password" name="password2"/></td>
                         </tr>
                         <tr>
-                            <td></td>
-                            <td><input type="hidden" name="passwordError"/></td>
-                        </tr>
-                        <tr>
                             <td><input type="submit" value="registrieren"/></td>
                             <td><input type="submit" value="abbrechen" /></td>
                         </tr>
+
                         </tbody>
                     </table>
+                    <label class="error" id="error" name="error">
+                        <%=request.getAttribute("error") != null ? 
+                                request.getAttribute("error") : ""%></label>
                 </form>
             </div>
         </div>

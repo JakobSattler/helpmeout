@@ -16,6 +16,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -66,18 +67,22 @@ public class RegisterPageServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            processRequest(request, response);
             String username = request.getParameter("username");
             String password = request.getParameter("password");
             String email = request.getParameter("email");
-            
+
             DBAccess dba = DBAccess.getInstance();
             dba.createUser(username, password, email);
+            request.getRequestDispatcher("WelcomePageServlet").forward(request, response);
+            System.out.println("!exists");
         } catch (DBAccess.UserAlreadyExistsException ex) {
-            request.setAttribute("usernameError", "Benutzername existiert bereits!");
+            request.setAttribute("error", "Benutzername existiert bereits!");
+            System.out.println("exists");
+            processRequest(request, response);
         } catch (Exception ex) {
             Logger.getLogger(RegisterPageServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     /**
