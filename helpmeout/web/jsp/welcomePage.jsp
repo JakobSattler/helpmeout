@@ -55,6 +55,18 @@
                     if ((boolean) session.getAttribute("loggedIn")) {
                         loggedIn = true;
                     }
+                }
+                if (request.getParameter("topic") != null) {
+                    topic = dba.getTopic(Integer.parseInt(request.getParameter("topic")));
+                    category = dba.getCategory(topic.getCategoryid());
+                    pageID = "topic";
+                }
+                if (request.getParameter("category") != null) {
+                    category = dba.getCategory(Integer.parseInt(request.getParameter("category")));
+                    pageID = "category";
+                }
+                if (request.getParameter("pageID") != null) {
+                    pageID = request.getParameter("pageID");
                 }%>
             <div id="container">
                 <div id="head">
@@ -65,7 +77,8 @@
                             categories = dba.getAllCategories();
                             for (Category cat : categories) {%>
                     <h3><%=cat.getTitle()%></h3>
-                    <% for (Topic top : topics) {
+                    <% topics = dba.getTopicsFromCategory(cat.getCategoryid());
+                        for (Topic top : topics) {
                             if (top.getCategoryid() == cat.getCategoryid()) {%>
                     <p><%=top.getTitle()%></p>
                     <%}
@@ -73,14 +86,16 @@
                     <% }
                     } else if (pageID.equals("category")) {%>
                     <h3><%=category.getTitle()%></h3>
-                    <% for (Topic top : topics) {
+                    <% topics = dba.getTopicsFromCategory(category.getCategoryid());
+                        for (Topic top : topics) {
                             if (top.getCategoryid() == category.getCategoryid()) {%>
-                    <h4>top.getTitle()</h4>
+                    <h4><%=top.getTitle()%></h4>
                     <%}
                         }%>
                     <%} else if (pageID.equals("topic")) {%>
                     <h3><%=category.getTitle()%> / <%=topic.getTitle()%></h3>
                     <% int i = 0;
+                    comments = dba.getCommentsFromTopic(topic.getTopicid());
                         for (Comment com : comments) {
                             if (com.getTopicid() == topic.getTopicid()) {
                                 i++;
@@ -108,7 +123,7 @@
                         <h2>Willkommen <%=user.getUsername()%></h2>
                         <input type="hidden" value="logout" name="logout" id="logout"/>
                         <input type="submit" value="Abmelden" />
-                        <% } else{%>
+                        <% } else {%>
                         <h2>Login</h2>
                         <table border="0">
                             <tbody>
@@ -124,11 +139,11 @@
                                     <td><input type="submit" value="Anmelden" /></td>
                                     <td><a href="RegisterPageServlet"><input type="button" value="Registrieren"/></a></td>
                                 </tr>
-                                    
+
                             </tbody>
                             <% if (request.getAttribute("loginError") != null) {%>
-                                    <label class="error"><%=request.getAttribute("loginError")%></label>
-                                    <% } %>
+                            <label class="error"><%=request.getAttribute("loginError")%></label>
+                            <% } %>
                         </table>
                         <% }%>
                     </div>

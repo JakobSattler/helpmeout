@@ -6,6 +6,8 @@
 package database;
 
 import beans.Category;
+import beans.Comment;
+import beans.Topic;
 import beans.User;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -102,10 +104,11 @@ public class DBAccess {
         connPool.releaseConnection(conn);
         return userList;
     }
+    
     //Get all categories
     private final HashMap<Connection, PreparedStatement> getAllCategoriesStmts
             = new HashMap<>();
-    private final String getAllCategoriesSqlString = "SELECT * FROM category";
+    private final String getAllCategoriesSqlString = "SELECT * FROM category;";
     
     /**
      * Returns all categories from the database
@@ -116,13 +119,13 @@ public class DBAccess {
         LinkedList<Category> categoryList = new LinkedList<>();
         Connection conn = connPool.getConnection();
 
-        PreparedStatement getAllUsersStmt = getAllCategoriesStmts.get(conn);
-        if (getAllUsersStmt == null) {
-            getAllUsersStmt = conn.prepareStatement(getAllCategoriesSqlString);
-            getAllCategoriesStmts.put(conn, getAllUsersStmt);
+        PreparedStatement getAllCategoriesStmt = getAllCategoriesStmts.get(conn);
+        if (getAllCategoriesStmt == null) {
+            getAllCategoriesStmt = conn.prepareStatement(getAllCategoriesSqlString);
+            getAllCategoriesStmts.put(conn, getAllCategoriesStmt);
         }
 
-        ResultSet rs = getAllUsersStmt.executeQuery();
+        ResultSet rs = getAllCategoriesStmt.executeQuery();
         while (rs.next()) {
             int id = Integer.parseInt(rs.getString("categoryid"));
             String title = rs.getString("title");
@@ -131,7 +134,131 @@ public class DBAccess {
         connPool.releaseConnection(conn);
         return categoryList;
     }
+    
+    //Get category
+    private final HashMap<Connection, PreparedStatement> getCategoryStmts
+            = new HashMap<>();
+    private final String getCategorySqlString = "SELECT * FROM category WHERE categoryid = ?;";
+    
+    /**
+     * Returns category from the database
+     * 
+     * @return 
+     */
+    public Category getCategory(int catID) throws SQLException, Exception {
+        Category cat = null;
+        Connection conn = connPool.getConnection();
 
+        PreparedStatement getCategoryStmt = getCategoryStmts.get(conn);
+        if (getCategoryStmt == null) {
+            getCategoryStmt = conn.prepareStatement(getCategorySqlString);
+            getCategoryStmts.put(conn, getCategoryStmt);
+        }
+        getCategoryStmt.setInt(1, catID);
+        ResultSet rs = getCategoryStmt.executeQuery();
+        while (rs.next()) {
+            int id = Integer.parseInt(rs.getString("categoryid"));
+            String title = rs.getString("title");
+            cat = new Category(id, title);
+        }
+        connPool.releaseConnection(conn);
+        return cat;
+    }
+
+    //Get topics form category
+    private final HashMap<Connection, PreparedStatement> getTopicsFromCategoryStmts
+            = new HashMap<>();
+    private final String getTopicsFromCategoryString = "SELECT * FROM topic WHERE categoryid = ?;";
+     /**
+     * Returns all categories from the database
+     * 
+     * @return 
+     */
+    public LinkedList<Topic> getTopicsFromCategory(int category) throws SQLException, Exception {
+        LinkedList<Topic> topicList = new LinkedList<>();
+        Connection conn = connPool.getConnection();
+
+        PreparedStatement getTopicsFromCategoryStmt = getTopicsFromCategoryStmts.get(conn);
+        if (getTopicsFromCategoryStmt == null) {
+            getTopicsFromCategoryStmt = conn.prepareStatement(getTopicsFromCategoryString);
+            getTopicsFromCategoryStmts.put(conn, getTopicsFromCategoryStmt);
+        }
+        getTopicsFromCategoryStmt.setInt(1, category);
+        ResultSet rs = getTopicsFromCategoryStmt.executeQuery();
+        while (rs.next()) {
+            int id = Integer.parseInt(rs.getString("topicid"));
+            String username = rs.getString("username");
+            String title = rs.getString("title");
+            LocalDate createDate = rs.getDate("createdate").toLocalDate();
+            topicList.add(new Topic(id, category, username, title, createDate));
+        }
+        connPool.releaseConnection(conn);
+        return topicList;
+    }
+    
+    //Get topic
+    private final HashMap<Connection, PreparedStatement> getTopicStmts
+            = new HashMap<>();
+    private final String getTopicSqlString = "SELECT * FROM topic WHERE topicid = ?;";
+    
+    /**
+     * Returns category from the database
+     * 
+     * @return 
+     */
+    public Topic getTopic(int topID) throws SQLException, Exception {
+        Topic top = null;
+        Connection conn = connPool.getConnection();
+
+        PreparedStatement getTopicStmt = getTopicStmts.get(conn);
+        if (getTopicStmt == null) {
+            getTopicStmt = conn.prepareStatement(getTopicSqlString);
+            getTopicStmts.put(conn, getTopicStmt);
+        }
+        getTopicStmt.setInt(1, topID);
+        ResultSet rs = getTopicStmt.executeQuery();
+        while (rs.next()) {
+            int categoryid = Integer.parseInt(rs.getString("categoryid"));
+            String username = rs.getString("username");
+            String title = rs.getString("title");
+            LocalDate createDate = rs.getDate("createdate").toLocalDate();
+            top = new Topic(topID, categoryid, username, title, createDate);
+        }
+        connPool.releaseConnection(conn);
+        return top;
+    }
+    
+    //Get topics form category
+    private final HashMap<Connection, PreparedStatement> getCommentsFromTopicStmts
+            = new HashMap<>();
+    private final String getCommentsFromTopicString = "SELECT * FROM topic WHERE categoryid = ?;";
+     /**
+     * Returns all categories from the database
+     * 
+     * @return 
+     */
+    public LinkedList<Comment> getCommentsFromTopic(int topic) throws SQLException, Exception {
+        LinkedList<Comment> commentList = new LinkedList<>();
+        Connection conn = connPool.getConnection();
+
+        PreparedStatement getCommentsFromTopicStmt = getCommentsFromTopicStmts.get(conn);
+        if (getCommentsFromTopicStmt == null) {
+            getCommentsFromTopicStmt = conn.prepareStatement(getCommentsFromTopicString);
+           getCommentsFromTopicStmts.put(conn, getCommentsFromTopicStmt);
+        }
+        getCommentsFromTopicStmt.setInt(1, topic);
+        ResultSet rs = getCommentsFromTopicStmt.executeQuery();
+        while (rs.next()) {
+            int id = Integer.parseInt(rs.getString("commentid"));
+            String username = rs.getString("username");
+            String text = rs.getString("text");
+            LocalDate editdate = rs.getDate("editdate").toLocalDate();
+            commentList.add(new Comment(id, topic, username, text, editdate));
+        }
+        connPool.releaseConnection(conn);
+        return commentList;
+    }
+    
     //Get user by username
     private final HashMap<Connection, PreparedStatement> getUserByUsernameStmts
             = new HashMap<>();
