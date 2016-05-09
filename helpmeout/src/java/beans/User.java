@@ -6,13 +6,9 @@
 package beans;
 
 import database.DBAccess;
-import database.DBAccess.UserAlreadyExistsException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.util.Random;
-import org.apache.tomcat.util.codec.binary.Base64;
 
 /**
  *

@@ -4,6 +4,7 @@
     Author     : Julia
 --%>
 
+<%@page import="database.DBAccess"%>
 <%@page import="beans.*"%>
 <%@page import="java.util.LinkedList"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -32,19 +33,27 @@
         <title>Help Me Out</title>
     </head>
     <body>
-        <%! boolean login = false;
-            String pageID = "overview";
-            LinkedList<Category> categories = new LinkedList<>();
-            Category category;
-            LinkedList<Topic> topics = new LinkedList<>();
-            Topic topic;
-            LinkedList<Comment> comments = new LinkedList<>();
+        <%!
+            private boolean loggedIn;
+            private DBAccess dba;
+            private User user;
+            private String pageID = "overview";
+            private LinkedList<Category> categories = new LinkedList<>();
+            private Category category;
+            private LinkedList<Topic> topics = new LinkedList<>();
+            private Topic topic;
+            private LinkedList<Comment> comments = new LinkedList<>();
+        %>
+        <%
+            loggedIn = (boolean) session.getAttribute("loggedIn");
+            dba = DBAccess.getInstance();
+            user = (User) session.getAttribute("user");
         %>
         <jsp:include page="/css/cssmenu/index.html"></jsp:include>
             <form action="WelcomePageServlet" method="POST">
             <% if (session.getAttribute("loggedIn") != null) {
                     if ((boolean) session.getAttribute("loggedIn")) {
-                        login = true;
+                        loggedIn = true;
                     }
                 }%>
             <div id="container">
@@ -53,10 +62,8 @@
                 </div>
                 <div id="main">
                     <% if (pageID.equals("overview")) {
-                            if (login) { %>
-                    <a href="TopicPageServlet"><input type="button" value="+ neues Thema hinzufügen" /></a>
-                        <% }%>
-                        <% for (Category cat : categories) {%>
+                            categories = dba.getAllCategories();
+                            for (Category cat : categories) {%>
                     <h3><%=cat.getTitle()%></h3>
                     <% for (Topic top : topics) {
                             if (top.getCategoryid() == cat.getCategoryid()) {%>
@@ -74,58 +81,60 @@
                     <%} else if (pageID.equals("topic")) {%>
                     <h3><%=category.getTitle()%> / <%=topic.getTitle()%></h3>
                     <% int i = 0;
-                    for(Comment com : comments){
-                        if(com.getTopicid() == topic.getTopicid()) { 
-                            i++;
-                            if(i%5 == 0){ %>
-                                <div id="commentN1"><%=com.getText()%></div>
-                            <% } else if (i%5 == 1){ %>
-                                <div id="commentN2"><%=com.getText()%></div>
-                            <% } else if (i%5 == 2){ %>
-                                <div id="commentN3"><%=com.getText()%></div>
-                            <% } else if (i%5 == 3){ %>
-                                <div id="commentN4"><%=com.getText()%></div>
-                            <% } else { %>
-                                <div id="commentN5"><%=com.getText()%></div>
-                            <%}%>    
-                      <%  }
-                    } %>
-                    <% } %>
-                    <div id="side">
-                        <div id="login">
-                            <% if (login) { %>
-                            <h2>Willkommen BENUTZER</h2>
-                            <input type="hidden" value="logout" name="logout" id="logout"/>
-                            <input type="submit" value="abmelden" />
-                            <% } else { %>
-                            <h2>Login</h2>
-                            <table border="0">
-                                <tbody>
-                                    <tr>
-                                        <td>Benutzername:</td>
-                                        <td><input type="text" name="username" value="" id="username"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Passwort:</td>
-                                        <td><input type="password" name="password" value="" id="password"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td><input type="submit" value="anmelden" /></td>
-                                        <td><a href="RegisterPageServlet"><input type="button" value="registrieren"/></a></td>
-                                    </tr>
-                                    <tr>
-                                        <% if (request.getAttribute("loginError") != null) {%>
-                                        <td><%=request.getAttribute("loginError")%></td>
-                                        <% } %>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <% }%>
-                        </div>
-                        <div id="news">
-                            <h2>Aktuelles</h2>
-                            <p>News</p>
-                        </div>
+                        for (Comment com : comments) {
+                            if (com.getTopicid() == topic.getTopicid()) {
+                                i++;
+                                if (i % 5 == 0) {%>
+                    <div id="commentN1"><%=com.getText()%></div>
+                    <% } else if (i % 5 == 1) {%>
+                    <div id="commentN2"><%=com.getText()%></div>
+                    <% } else if (i % 5 == 2) {%>
+                    <div id="commentN3"><%=com.getText()%></div>
+                    <% } else if (i % 5 == 3) {%>
+                    <div id="commentN4"><%=com.getText()%></div>
+                    <% } else {%>
+                    <div id="commentN5"><%=com.getText()%></div>
+                    <%}%>    
+                    <%  }
+                        } %>
+                    <% }
+                        if (loggedIn) {%>
+                    <a href="TopicPageServlet"><input type="button" value="+ Neues Thema hinzufügen" /></a>
+                        <% } %>
+                </div>
+                <div id="side">
+                    <div id="login">
+                        <% if (loggedIn) {%>
+                        <h2>Willkommen <%=user.getUsername()%></h2>
+                        <input type="hidden" value="logout" name="logout" id="logout"/>
+                        <input type="submit" value="Abmelden" />
+                        <% } else{%>
+                        <h2>Login</h2>
+                        <table border="0">
+                            <tbody>
+                                <tr>
+                                    <td>Benutzername:</td>
+                                    <td><input type="text" name="username" value="" id="username"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Passwort:</td>
+                                    <td><input type="password" name="password" value="" id="password"/></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="submit" value="Anmelden" /></td>
+                                    <td><a href="RegisterPageServlet"><input type="button" value="Registrieren"/></a></td>
+                                </tr>
+                                    
+                            </tbody>
+                            <% if (request.getAttribute("loginError") != null) {%>
+                                    <label class="error"><%=request.getAttribute("loginError")%></label>
+                                    <% } %>
+                        </table>
+                        <% }%>
+                    </div>
+                    <div id="news">
+                        <h2>Aktuelles</h2>
+                        <p>News</p>
                     </div>
                 </div>
         </form>

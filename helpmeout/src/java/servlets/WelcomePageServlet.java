@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
@@ -40,24 +41,7 @@ public class WelcomePageServlet extends HttpServlet {
             response.setContentType("text/html;charset=UTF-8");
             DBAccess dba = DBAccess.getInstance();
             request.getSession().setAttribute("loggedIn", dba.isUserLoggedIn(request));
-
-            if (request.getParameter("logout") != null
-                    && !request.getParameter("logout").equals("")) {
-                Cookie[] cookies = request.getCookies();
-                for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals("sessionID")) {
-                        cookie.setMaxAge(0);
-                        response.addCookie(cookie);
-                    }
-                }
-                response.sendRedirect("WelcomePageServlet");
-                return;
-            } else {
-                request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
-            }
-            try (PrintWriter out = response.getWriter()) {
-                /* TODO output your page here. You may use following sample code. */
-            }
+            System.out.println(request.getSession().getAttribute("loggedIn"));
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(WelcomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -76,7 +60,8 @@ public class WelcomePageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
-
+        request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
+        
     }
 
     /**
@@ -90,38 +75,57 @@ public class WelcomePageServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        if (request != null) {
-            if (request.getAttribute("login") != null && (boolean) request.getAttribute("login")) {
-                request.setAttribute("login", false);
-                request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
-            } else {
-                try {
-                    String username = request.getParameter("username");
-                    String password = request.getParameter("password");
-                    DBAccess dba = DBAccess.getInstance();
+        processRequest(request, response);
+        try {
+            DBAccess dba = DBAccess.getInstance();
+            if (request != null) {
+                if (request.getAttribute("login") != null && (boolean) request.getAttribute("login")) {
+                    request.setAttribute("login", false);
+                    request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
+                } else {
+                    try {
+                        String username = request.getParameter("username");
+                        String password = request.getParameter("password");
 
-                    if (dba.isLoginCorrect(username, password)) {
-                        User user = dba.getUserByUsername(username);
-                        String sessionID = user.getPassword() + user.getSalt();
-                        request.getSession().setAttribute("sessionID", sessionID);
-                        Cookie cookie = new Cookie("sessionID",
-                                user.getPassword() + user.getSalt());
-                        response.addCookie(cookie);
-                        response.sendRedirect("WelcomePageServlet");
-                    } else {
-                        request.setAttribute("loginError", "Username oder "
-                                + "Passwort falsch!");
-                        request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
+                        if (username != null && password != null) {
+                            if (dba.isLoginCorrect(username, password)) {
+                                User user = dba.getUserByUsername(username);
+                                String sessionID = user.getPassword() + user.getSalt();
+                                request.getSession().setAttribute("user", user);
+                                request.getSession().setAttribute("sessionID", sessionID);
+                                Cookie cookie = new Cookie("sessionID",
+                                        user.getPassword() + user.getSalt());
+                                response.addCookie(cookie);
+                                response.sendRedirect("WelcomePageServlet");
+                            } else {
+                                request.setAttribute("loginError", "Benutzername oder "
+                                        + "Passwort falsch!");
+                                request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
+                            }
+                        } else if (request.getParameter("logout") != null
+                                && !request.getParameter("logout").equals("")) {
+                            System.out.println("logout");
+                            Cookie[] cookies = request.getCookies();
+                            for (Cookie cookie : cookies) {
+                                if (cookie.getName().equals("sessionID")) {
+                                    cookie.setMaxAge(0);
+                                    response.addCookie(cookie);
+                                }
+                            }
+                            response.sendRedirect("WelcomePageServlet");
+                        } else {
+                            request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
+                        }
+                    } catch (ClassNotFoundException ex) {
+                        Logger.getLogger(WelcomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (Exception ex) {
+                        Logger.getLogger(WelcomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    // TODO: User prüfen (gibt es Username? ist passwort zu username richtig?
-
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(WelcomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (Exception ex) {
-                    Logger.getLogger(WelcomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-
+            
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(WelcomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -135,4 +139,10 @@ public class WelcomePageServlet extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    
 }

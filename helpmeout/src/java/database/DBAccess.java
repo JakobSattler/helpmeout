@@ -5,6 +5,7 @@
  */
 package database;
 
+import beans.Category;
 import beans.User;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -100,6 +101,35 @@ public class DBAccess {
         }
         connPool.releaseConnection(conn);
         return userList;
+    }
+    //Get all categories
+    private final HashMap<Connection, PreparedStatement> getAllCategoriesStmts
+            = new HashMap<>();
+    private final String getAllCategoriesSqlString = "SELECT * FROM category";
+    
+    /**
+     * Returns all categories from the database
+     * 
+     * @return 
+     */
+    public LinkedList<Category> getAllCategories() throws SQLException, Exception {
+        LinkedList<Category> categoryList = new LinkedList<>();
+        Connection conn = connPool.getConnection();
+
+        PreparedStatement getAllUsersStmt = getAllCategoriesStmts.get(conn);
+        if (getAllUsersStmt == null) {
+            getAllUsersStmt = conn.prepareStatement(getAllCategoriesSqlString);
+            getAllCategoriesStmts.put(conn, getAllUsersStmt);
+        }
+
+        ResultSet rs = getAllUsersStmt.executeQuery();
+        while (rs.next()) {
+            int id = Integer.parseInt(rs.getString("categoryid"));
+            String title = rs.getString("title");
+            categoryList.add(new Category(id, title));
+        }
+        connPool.releaseConnection(conn);
+        return categoryList;
     }
 
     //Get user by username

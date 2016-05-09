@@ -41,6 +41,44 @@ h3{
     display: block;
 }
 
+.error{
+    color: red;
+    font-size: 14pt;
+}
+
+/*
+input[type="submit"] {
+    background-color: #4CAF50; 
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    width: 8em;
+    height: 2em;
+    text-align: center;
+    vertical-align: middle;
+}
+input[type="button"] {
+    background-color: #4CAF50; 
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    width: 8em;
+    height: 2em;
+}
+*/
+
 #container{
     width:100%;
     margin: 10px;
@@ -56,6 +94,7 @@ h3{
     width:70%;
     height:auto;
     float:left;
+    border: 10px solid transparent;
 }
 
 #commentN1{

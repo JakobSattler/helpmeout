@@ -17,6 +17,7 @@
         <script src="css/cssmenu/script.js"></script>
         <script type="text/javascript">
             function validate(form) {
+                alert(document.getElementById("passwordError"));
                 alert("validate");
                 if (form.password.value !== form.password2.value ||) {
                     document.getElementById("passwordError").innerHTML = "Passwörter stimmen nicht überein!";
@@ -28,7 +29,7 @@
                         || form.email.value === "" || form.email.value === null){
                     document.getElementById("passwordError").innerHTML = "Es müssen alle Felder ausgefüllt sein!";
                 }
-                alert(document.getElementById("passwordError"));
+                
                 return true;
             }
         </script>
