@@ -8,6 +8,7 @@
 <%@page import="beans.*"%>
 <%@page import="java.util.LinkedList"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -73,29 +74,60 @@
                     <h1>Help Me out!</h1>
                 </div>
                 <div id="main">
-                    <% if (pageID.equals("overview")) {
-                            categories = dba.getAllCategories();
-                            for (Category cat : categories) {%>
-                    <h3><%=cat.getTitle()%></h3>
-                    <% topics = dba.getTopicsFromCategory(cat.getCategoryid());
-                        for (Topic top : topics) {
-                            if (top.getCategoryid() == cat.getCategoryid()) {%>
-                    <p><%=top.getTitle()%></p>
-                    <%}
-                        }%>
-                    <% }
-                    } else if (pageID.equals("category")) {%>
+                    <c:choose>
+                        <c:when test="${param.viewcategory != null}">
+                            <c:forEach items="${categories}" var="category">
+                                <c:if test="${category.categoryid == param.viewcategory}">
+                                    <a href="WelcomePageServlet?viewcategory=<c:out value="${category.categoryid}"/>">
+                                        <h3>
+                                            <c:out value="${category.title}"/>
+                                        </h3>
+                                    </a>
+                                    <c:forEach items="${topics}" var="topic">
+                                        <c:if test="${topic.categoryid == category.categoryid}">
+                                            <a href="WelcomePageServlet?viewtopic=<c:out value="${topic.topicid}"/>">
+                                                <p>
+                                                    <c:out value="${topic.title}"/>
+                                                </p>
+                                            </a>
+                                        </c:if>     
+                                    </c:forEach>
+                                </c:if>
+                            </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <c:forEach items="${categories}" var="category">
+                                <a href="WelcomePageServlet?viewcategory=<c:out value="${category.categoryid}"/>">
+                                    <h3>
+                                        <c:out value="${category.title}"/>
+                                    </h3>
+                                </a>
+                                <c:forEach items="${topics}" var="topic">
+                                    <c:if test="${topic.categoryid == category.categoryid}">
+                                        <a href="WelcomePageServlet?viewtopic=<c:out value="${topic.topicid}"/>">
+                                            <p><c:out value="${topic.title}"/></p>
+                                        </a>
+                                    </c:if>
+                                </c:forEach>
+                            </c:forEach>
+                        </c:otherwise>
+                    </c:choose>
+                    <%--
+                    <%
+                        if (pageID.equals(
+                                "category")) {%>
                     <h3><%=category.getTitle()%></h3>
-                    <% topics = dba.getTopicsFromCategory(category.getCategoryid());
+                    <% topics = dba.getTopicsByCategory(category.getCategoryid());
                         for (Topic top : topics) {
                             if (top.getCategoryid() == category.getCategoryid()) {%>
                     <h4><%=top.getTitle()%></h4>
                     <%}
                         }%>
-                    <%} else if (pageID.equals("topic")) {%>
+                    <%} else if (pageID.equals(
+                            "topic")) {%>
                     <h3><%=category.getTitle()%> / <%=topic.getTitle()%></h3>
                     <% int i = 0;
-                    comments = dba.getCommentsFromTopic(topic.getTopicid());
+                        comments = dba.getCommentsByTopic(topic.getTopicid());
                         for (Comment com : comments) {
                             if (com.getTopicid() == topic.getTopicid()) {
                                 i++;
@@ -114,8 +146,11 @@
                         } %>
                     <% }
                         if (loggedIn) {%>
-                    <a href="TopicPageServlet"><input type="button" value="+ Neues Thema hinzufügen" /></a>
-                        <% } %>
+                    <a href="TopicPageServlet">
+                        <input type="button" value="+ Neues Thema hinzufügen" />
+                    </a>
+                    <% } %>
+                    --%>
                 </div>
                 <div id="side">
                     <div id="login">
@@ -139,12 +174,11 @@
                                     <td><input type="submit" value="Anmelden" /></td>
                                     <td><a href="RegisterPageServlet"><input type="button" value="Registrieren"/></a></td>
                                 </tr>
-
                             </tbody>
-                            <% if (request.getAttribute("loginError") != null) {%>
-                            <label class="error"><%=request.getAttribute("loginError")%></label>
-                            <% } %>
                         </table>
+                        <c:if test="${loginError != null}">
+                            <label class="error"><c:out value="${loginError}"/></label>
+                        </c:if>
                         <% }%>
                     </div>
                     <div id="news">

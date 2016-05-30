@@ -65,7 +65,7 @@
                         </tr>
                         <tr>
                             <td><input type="submit" value="registrieren"/></td>
-                            <td><input type="submit" value="abbrechen" /></td>
+                            <td><a href="WelcomePageServlet"><input type="button" value="abbrechen" /></a></td>
                         </tr>
 
                         </tbody>

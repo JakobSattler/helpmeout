@@ -40,8 +40,12 @@ public class WelcomePageServlet extends HttpServlet {
             response.setContentType("text/html;charset=UTF-8");
             DBAccess dba = DBAccess.getInstance();
             request.getSession().setAttribute("loggedIn", dba.isUserLoggedIn(request));
+            getServletContext().setAttribute("categories", dba.getAllCategories());
+            getServletContext().setAttribute("topics", dba.getAllTopics());
             System.out.println(request.getSession().getAttribute("loggedIn"));
         } catch (ClassNotFoundException ex) {
+            Logger.getLogger(WelcomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
             Logger.getLogger(WelcomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
