@@ -70,9 +70,10 @@
 
                         </tbody>
                     </table>
-                    <label class="error" id="error" name="error">
+                    <label class="error" id="error">
                         <%=request.getAttribute("error") != null ? 
-                                request.getAttribute("error") : ""%></label>
+                                request.getAttribute("error") : ""%>
+                    </label>
                 </form>
             </div>
         </div>

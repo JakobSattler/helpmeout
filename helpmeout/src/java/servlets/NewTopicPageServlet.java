@@ -5,20 +5,26 @@
  */
 package servlets;
 
+import beans.User;
+import database.DBAccess;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import static org.apache.tomcat.jni.User.username;
 
 /**
  *
  * @author Julia
  */
-@WebServlet(name = "TopicPageServlet", urlPatterns = {"/TopicPageServlet"})
-public class TopicPageServlet extends HttpServlet {
+@WebServlet(name = "NewTopicPageServlet", urlPatterns = {"/NewTopicPageServlet"})
+public class NewTopicPageServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -33,7 +39,12 @@ public class TopicPageServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
+             DBAccess dba = DBAccess.getInstance();
+            request.getSession().setAttribute("loggedIn", dba.isUserLoggedIn(request));
+            getServletContext().setAttribute("categories", dba.getAllCategories());
             request.getRequestDispatcher("jsp/newTopicPage.jsp").forward(request, response);
+        } catch (Exception ex) {
+            Logger.getLogger(NewTopicPageServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -63,7 +74,19 @@ public class TopicPageServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+         try {
+            int categoryid = Integer.parseInt(request.getParameter("category"));
+            User user = (User) request.getSession().getAttribute("user");
+            String topic = request.getParameter("title");
+            String comment = request.getParameter("text");
+            
+            DBAccess dba = DBAccess.getInstance();
+            dba.createTopic(categoryid, user.getUsername(), topic, comment, LocalDate.now());
+            request.getRequestDispatcher("WelcomePageServlet").forward(request, response);
+            System.out.println("!exists");
+        } catch (Exception ex) {
+            Logger.getLogger(RegisterPageServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**

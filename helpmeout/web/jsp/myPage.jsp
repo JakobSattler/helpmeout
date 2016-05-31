@@ -52,8 +52,8 @@
                         <td><input type="hidden" name="passwordError"/></td>
                     </tr>
                     <tr>
-                        <td><input type="submit" value="registrieren" onsubmit="return validate()"/></td>
-                        <td><input type="submit" value="abbrechen" /></td>
+                        <td><input type="submit" value="speichern" onsubmit="return validate()"/></td>
+                        <td><a href="WelcomePageServlet"><input type="submit" value="abbrechen" /></a></td>
                     </tr>
                 </tbody>
             </table>

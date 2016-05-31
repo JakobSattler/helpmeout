@@ -42,6 +42,7 @@ public class WelcomePageServlet extends HttpServlet {
             request.getSession().setAttribute("loggedIn", dba.isUserLoggedIn(request));
             getServletContext().setAttribute("categories", dba.getAllCategories());
             getServletContext().setAttribute("topics", dba.getAllTopics());
+            getServletContext().setAttribute("comments", dba.getAllComments());
             System.out.println(request.getSession().getAttribute("loggedIn"));
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(WelcomePageServlet.class.getName()).log(Level.SEVERE, null, ex);

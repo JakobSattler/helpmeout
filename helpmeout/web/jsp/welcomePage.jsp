@@ -95,6 +95,44 @@
                                 </c:if>
                             </c:forEach>
                         </c:when>
+                        <c:when test="${param.viewtopic != null}">
+                            <c:forEach items="${topics}" var="topic">
+                                <c:if test="${topic.topicid == param.viewtopic}">
+                                    <c:forEach items="${categories}" var="category">
+                                        <c:if test="${category.categoryid == topic.categoryid}">
+                                            <h3>
+                                                <c:out value="${category.title}"/>
+                                            </h3>
+                                        </c:if>
+                                    </c:forEach>
+
+                                    <c:set var="count" value="0" scope="page" /> 
+                                    <c:forEach items="${comments}" var="comment">
+                                        <c:if test="${comment.topicid == topic.topicid}">
+                                           <c:out value="${comment.username}"/>
+                                            <c:choose>
+                                                <c:when test="${count % 5 == 0}">
+                                                    <div id="commentN1"><c:out value="${comment.text}"/></div>
+                                                </c:when>
+                                                <c:when test="${count % 5 == 1}">
+                                                    <div id="commentN2"><c:out value="${comment.text}"/></div>
+                                                </c:when>
+                                                <c:when test="${count % 5 == 2}">
+                                                    <div id="commentN3"><c:out value="${comment.text}"/></div>
+                                                </c:when>
+                                                <c:when test="${count % 5 == 3}">
+                                                    <div id="commentN4"><c:out value="${comment.text}"/></div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <div id="commentN5"><c:out value="${comment.text}"/></div>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </c:if>
+                                        <c:set var="count" value="${count + 1}" scope="page"/>
+                                    </c:forEach>
+                                </c:if>
+                            </c:forEach>
+                        </c:when>
                         <c:otherwise>
                             <c:forEach items="${categories}" var="category">
                                 <a href="WelcomePageServlet?viewcategory=<c:out value="${category.categoryid}"/>">
@@ -144,13 +182,14 @@
                     <%}%>    
                     <%  }
                         } %>
-                    <% }
+                    <% }--%>
+                    <%
                         if (loggedIn) {%>
-                    <a href="TopicPageServlet">
+                    <a href="NewTopicPageServlet">
                         <input type="button" value="+ Neues Thema hinzufügen" />
                     </a>
                     <% } %>
-                    --%>
+
                 </div>
                 <div id="side">
                     <div id="login">

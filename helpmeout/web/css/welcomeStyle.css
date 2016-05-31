@@ -113,35 +113,60 @@ input[type="submit"]:active, input[type="button"]:active {
     width: 80%;
     color:white;
     background-color: #FFA500;
-    float:left;    
+    border-style: ridge;
+    border-radius:50px;
+    padding: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
 }
 
 #commentN2{
     width: 80%;
     color:white;
     background-color: #FF8C00;
-    float:right;    
+    border-style: ridge;
+    border-radius:50px;
+    padding: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
 }
 
 #commentN3{
     width: 80%;
     color:white;
     background-color: #FF7F50;
-    float:left;    
+    border-style: ridge;
+    border-radius:50px;
+    padding: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
 }
 
 #commentN4{
     width: 80%;
     color:white;
     background-color: #FF6347;
-    float:right;    
+    border-style: ridge;
+    border-radius:50px;
+    padding: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
 }
 
 #commentN5{
     width: 80%;
     color:white;
     background-color: #FF4500;
-    float:left;    
+    border-style: ridge;
+    border-radius:50px;
+    padding: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
 }
 
 #side{
