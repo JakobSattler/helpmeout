@@ -74,6 +74,7 @@
                     <h1>Help Me out!</h1>
                 </div>
                 <div id="main">
+
                     <c:choose>
                         <c:when test="${param.viewcategory != null}">
                             <c:forEach items="${categories}" var="category">
@@ -109,9 +110,10 @@
                                     <c:set var="count" value="0" scope="page" /> 
                                     <c:forEach items="${comments}" var="comment">
                                         <c:if test="${comment.topicid == topic.topicid}">
-                                           <c:out value="${comment.username}"/>
-                                            <c:choose>
-                                                <c:when test="${count % 5 == 0}">
+                                            <p><b><c:out value="${comment.username}"/>:</b>
+                                                <c:out value="${comment.editDate}"/></p>
+                                                <c:choose>
+                                                    <c:when test="${count % 5 == 0}">
                                                     <div id="commentN1"><c:out value="${comment.text}"/></div>
                                                 </c:when>
                                                 <c:when test="${count % 5 == 1}">
@@ -130,6 +132,15 @@
                                         </c:if>
                                         <c:set var="count" value="${count + 1}" scope="page"/>
                                     </c:forEach>
+                                                <%--  <c:if test="${param.loggedIn}"> --%>
+                                                <% if (loggedIn) {%>
+                                        <form action="NewCommentServlet">
+                                            <h2>Neuer Beitrag</h2>
+                                            <textarea name="text" rows="10" cols="110"></textarea>
+                                            <input type="submit" value="posten" />
+                                        </form>   
+                                        <% }%>
+                                  <%--  </c:if>--%>
                                 </c:if>
                             </c:forEach>
                         </c:when>
@@ -150,46 +161,7 @@
                             </c:forEach>
                         </c:otherwise>
                     </c:choose>
-                    <%--
-                    <%
-                        if (pageID.equals(
-                                "category")) {%>
-                    <h3><%=category.getTitle()%></h3>
-                    <% topics = dba.getTopicsByCategory(category.getCategoryid());
-                        for (Topic top : topics) {
-                            if (top.getCategoryid() == category.getCategoryid()) {%>
-                    <h4><%=top.getTitle()%></h4>
-                    <%}
-                        }%>
-                    <%} else if (pageID.equals(
-                            "topic")) {%>
-                    <h3><%=category.getTitle()%> / <%=topic.getTitle()%></h3>
-                    <% int i = 0;
-                        comments = dba.getCommentsByTopic(topic.getTopicid());
-                        for (Comment com : comments) {
-                            if (com.getTopicid() == topic.getTopicid()) {
-                                i++;
-                                if (i % 5 == 0) {%>
-                    <div id="commentN1"><%=com.getText()%></div>
-                    <% } else if (i % 5 == 1) {%>
-                    <div id="commentN2"><%=com.getText()%></div>
-                    <% } else if (i % 5 == 2) {%>
-                    <div id="commentN3"><%=com.getText()%></div>
-                    <% } else if (i % 5 == 3) {%>
-                    <div id="commentN4"><%=com.getText()%></div>
-                    <% } else {%>
-                    <div id="commentN5"><%=com.getText()%></div>
-                    <%}%>    
-                    <%  }
-                        } %>
-                    <% }--%>
-                    <%
-                        if (loggedIn) {%>
-                    <a href="NewTopicPageServlet">
-                        <input type="button" value="+ Neues Thema hinzufügen" />
-                    </a>
-                    <% } %>
-
+                    
                 </div>
                 <div id="side">
                     <div id="login">
@@ -221,8 +193,11 @@
                         <% }%>
                     </div>
                     <div id="news">
-                        <h2>Aktuelles</h2>
-                        <p>News</p>
+                        <% if (loggedIn) {%>
+                        <a href="NewTopicPageServlet">
+                            <input type="button" value="+ Neues Thema hinzufügen" />
+                        </a>
+                        <% }%>
                     </div>
                 </div>
         </form>
