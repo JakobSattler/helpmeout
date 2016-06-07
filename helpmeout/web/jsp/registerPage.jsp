@@ -18,8 +18,6 @@
         <script type="text/javascript">
             function validate(form) {
                 var passwordError = document.getElementById("error");
-                alert("validate");
-
                 if (form.username.value === "" || form.username.value === null
                         || form.password.value === "" || form.password.value === null
                         || form.password2.value === "" || form.password.value === null
@@ -40,32 +38,32 @@
         <div id="container">
             <jsp:include page="/css/cssmenu/index.html"></jsp:include>
             <div id="head">
-                <h1>Help Me out! - Regestrierung</h1>
+                <h1>Help Me out! - Registrierung</h1>
             </div>
             <div id="main">
                 <form method="POST" action="RegisterPageServlet" 
                       onsubmit="return validate(this)">
                     <table border="0">
                         <tr>
-                            <td>benutzername:</td>
+                            <td>Benutzername:</td>
                             <td><input type="text" name="username"/></td>
                             <td id="userError"></td>
                         </tr>
                         <tr>
-                            <td>email:</td>
+                            <td>Email:</td>
                             <td><input type="text" name="email"/></td>
                         </tr>
                         <tr>
-                            <td>passwort:</td>
+                            <td>Passwort:</td>
                             <td><input type="password" name="password"/></td>
                         </tr>
                         <tr>
-                            <td>passwort bestätigen:</td>
+                            <td>Passwort bestätigen:</td>
                             <td><input type="password" name="password2"/></td>
                         </tr>
                         <tr>
-                            <td><input type="submit" value="registrieren"/></td>
-                            <td><a href="WelcomePageServlet"><input type="button" value="abbrechen" /></a></td>
+                            <td><input type="submit" value="Registrieren"/></td>
+                            <td><a href="WelcomePageServlet"><input type="button" value="Abbrechen" /></a></td>
                         </tr>
 
                         </tbody>

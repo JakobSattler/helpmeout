@@ -22,13 +22,6 @@ public class User {
     private String salt;
     private LocalDate registerDate;
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, Exception {
-        DBAccess dba = DBAccess.getInstance();
-        System.out.println(dba.isLoginCorrect("jakob", "blabla"));
-        System.out.println(dba.isLoginCorrect("jfkalsdö", "blabla"));
-        System.out.println(dba.isLoginCorrect("jakob", "jklö"));
-    }
-
     /**
      * Returns the hash value of the password argument
      * 
@@ -46,8 +39,6 @@ public class User {
         }
         return sb.toString();
     }
-    
-    
 
     public User() {
 

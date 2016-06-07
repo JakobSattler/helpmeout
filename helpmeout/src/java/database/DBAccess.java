@@ -21,6 +21,8 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -104,16 +106,16 @@ public class DBAccess {
         connPool.releaseConnection(conn);
         return userList;
     }
-    
+
     //Get all categories
     private final HashMap<Connection, PreparedStatement> getAllCategoriesStmts
             = new HashMap<>();
     private final String getAllCategoriesSqlString = "SELECT * FROM category;";
-    
+
     /**
      * Returns all categories from the database
-     * 
-     * @return 
+     *
+     * @return
      */
     public LinkedList<Category> getAllCategories() throws SQLException, Exception {
         LinkedList<Category> categoryList = new LinkedList<>();
@@ -134,16 +136,16 @@ public class DBAccess {
         connPool.releaseConnection(conn);
         return categoryList;
     }
-    
+
     //Get all topics
     private final HashMap<Connection, PreparedStatement> getAllTopicsStmts
             = new HashMap<>();
     private final String getAllTopicsSqlString = "SELECT * FROM topic;";
-    
+
     /**
      * Returns all topics from the database
-     * 
-     * @return 
+     *
+     * @return
      */
     public LinkedList<Topic> getAllTopics() throws SQLException, Exception {
         LinkedList<Topic> topicList = new LinkedList<>();
@@ -162,21 +164,21 @@ public class DBAccess {
             String title = rs.getString("title");
             String username = rs.getString("username");
             LocalDate createDate = LocalDate.parse(rs.getString("createDate"));
-            topicList.add(new Topic(id, catId,username,title,createDate));
+            topicList.add(new Topic(id, catId, username, title, createDate));
         }
         connPool.releaseConnection(conn);
         return topicList;
     }
-    
+
     //Get all comments
     private final HashMap<Connection, PreparedStatement> getAllCommentsStmts
             = new HashMap<>();
     private final String getAllCommentsSqlString = "SELECT * FROM comment;";
-    
+
     /**
      * Returns all comments from the database
-     * 
-     * @return 
+     *
+     * @return
      */
     public LinkedList<Comment> getAllComments() throws SQLException, Exception {
         LinkedList<Comment> commentList = new LinkedList<>();
@@ -200,16 +202,16 @@ public class DBAccess {
         connPool.releaseConnection(conn);
         return commentList;
     }
-    
+
     //Get category
     private final HashMap<Connection, PreparedStatement> getCategoryStmts
             = new HashMap<>();
     private final String getCategorySqlString = "SELECT * FROM category WHERE categoryid = ?;";
-    
+
     /**
      * Returns category from the database
-     * 
-     * @return 
+     *
+     * @return
      */
     public Category getCategory(int catID) throws SQLException, Exception {
         Category cat = null;
@@ -235,10 +237,11 @@ public class DBAccess {
     private final HashMap<Connection, PreparedStatement> getTopicsByCategoryStmts
             = new HashMap<>();
     private final String getTopicsByCategoryString = "SELECT * FROM topic WHERE categoryid = ?;";
-     /**
+
+    /**
      * Returns all categories from the database
-     * 
-     * @return 
+     *
+     * @return
      */
     public LinkedList<Topic> getTopicsByCategory(int category) throws SQLException, Exception {
         LinkedList<Topic> topicList = new LinkedList<>();
@@ -261,16 +264,16 @@ public class DBAccess {
         connPool.releaseConnection(conn);
         return topicList;
     }
-    
+
     //Get topic
     private final HashMap<Connection, PreparedStatement> getTopicStmts
             = new HashMap<>();
     private final String getTopicSqlString = "SELECT * FROM topic WHERE topicid = ?;";
-    
+
     /**
      * Returns category from the database
-     * 
-     * @return 
+     *
+     * @return
      */
     public Topic getTopic(int topID) throws SQLException, Exception {
         Topic top = null;
@@ -293,15 +296,16 @@ public class DBAccess {
         connPool.releaseConnection(conn);
         return top;
     }
-    
+
     //Get topics form category
     private final HashMap<Connection, PreparedStatement> getCommentsByTopicStmts
             = new HashMap<>();
     private final String getCommentsByTopicString = "SELECT * FROM topic WHERE categoryid = ?;";
-     /**
+
+    /**
      * Returns all categories from the database
-     * 
-     * @return 
+     *
+     * @return
      */
     public LinkedList<Comment> getCommentsByTopic(int topic) throws SQLException, Exception {
         LinkedList<Comment> commentList = new LinkedList<>();
@@ -310,7 +314,7 @@ public class DBAccess {
         PreparedStatement getCommentsByTopicStmt = getCommentsByTopicStmts.get(conn);
         if (getCommentsByTopicStmt == null) {
             getCommentsByTopicStmt = conn.prepareStatement(getCommentsByTopicString);
-           getCommentsByTopicStmts.put(conn, getCommentsByTopicStmt);
+            getCommentsByTopicStmts.put(conn, getCommentsByTopicStmt);
         }
         getCommentsByTopicStmt.setInt(1, topic);
         ResultSet rs = getCommentsByTopicStmt.executeQuery();
@@ -324,7 +328,7 @@ public class DBAccess {
         connPool.releaseConnection(conn);
         return commentList;
     }
-    
+
     //Get user by username
     private final HashMap<Connection, PreparedStatement> getUserByUsernameStmts
             = new HashMap<>();
@@ -376,11 +380,12 @@ public class DBAccess {
      * @param username
      * @param password password in plain text
      * @param email
+     * @param role possible roles: admin, user
      * @throws database.DBAccess.UserAlreadyExistsException
      * @throws Exception
      */
     public void createUser(String username, String password,
-            String email) throws UserAlreadyExistsException, Exception {
+            String email, String role) throws UserAlreadyExistsException, Exception {
         System.out.println(getUserByUsername(username) == null);
         if (getUserByUsername(username) == null) {
             Connection conn = connPool.getConnection();
@@ -400,10 +405,52 @@ public class DBAccess {
             createUserStmt.setDate(5, Date.valueOf(LocalDate.now()));
             createUserStmt.executeUpdate();
 
+            String[] permissions;
+            switch (role.toLowerCase()) {
+                case "admin":
+                    permissions = new String[]{"CREATE_TOPIC", "CREATE_COMMENT",
+                        "CREATE_CATEGORY"};
+                    createUserPermissions(username, permissions);
+                    break;
+                case "user":
+                    permissions = new String[]{"CREATE_TOPIC", "CREATE_COMMENT"};
+                    createUserPermissions(username, permissions);
+                    break;
+            }
             connPool.releaseConnection(conn);
         } else {
             throw new UserAlreadyExistsException("User already exists!");
         }
+    }
+
+    //Create userpermission
+    private final HashMap<Connection, PreparedStatement> createUserpermissionStmts
+            = new HashMap<>();
+    private final String createUserPermissionSqlString = "INSERT INTO userpermission "
+            + "VALUES (?, ?)";
+
+    /**
+     * Creates permission for a user<br>
+     * <br>
+     * <b>Permissions:</b><br>
+     * CREATE_TOPIC, CREATE_COMMENT, CREATE_CATEGORY
+     *
+     * @param username
+     * @param permissions
+     */
+    public void createUserPermissions(String username, String... permissions) throws Exception {
+        Connection conn = connPool.getConnection();
+        PreparedStatement createUserpermissionStmt = createUserpermissionStmts.get(conn);
+        if (createUserpermissionStmt == null) {
+            createUserpermissionStmt = conn.prepareStatement(createUserPermissionSqlString);
+            getPasswordByUserStmts.put(conn, createUserpermissionStmt);
+        }
+        for (String permission : permissions) {
+            createUserpermissionStmt.setString(1, username.toLowerCase());
+            createUserpermissionStmt.setString(2, permission.toLowerCase());
+            createUserpermissionStmt.executeUpdate();
+        }
+        connPool.releaseConnection(conn);
     }
 
     //Check if password is correct
@@ -460,7 +507,7 @@ public class DBAccess {
      * @param createDate Date when the topic is created
      * @throws Exception
      */
-    public void createTopic(int categoryid, String username, String title, 
+    public void createTopic(int categoryid, String username, String title,
             String commentText, LocalDate createDate) throws Exception {
         Connection conn = connPool.getConnection();
         PreparedStatement createTopicStmt = createTopicStmts.get(conn);
@@ -523,6 +570,43 @@ public class DBAccess {
         return loggedIn;
     }
 
+    //Create comment
+    private final HashMap<Connection, PreparedStatement> getUserpermissionByUserAndPermissionStmts
+            = new HashMap<>();
+    private final String getUserpermissionByUserAndPermissionSqlString
+            = "SELECT permissiondesc "
+            + "FROM userpermission "
+            + "WHERE username=? AND permissiondesc=?";
+
+    /**
+     * Checks if a user has a permission<br>
+     * <br>
+     * <b>Permissions:</b><br>
+     * CREATE_TOPIC, CREATE_COMMENT, CREATE_CATEGORY
+     *
+     * @param user
+     * @param permission
+     * @return
+     * @throws java.lang.Exception
+     */
+    public boolean hasUserPermission(User user, String permission) throws Exception {
+        Connection conn = connPool.getConnection();
+        PreparedStatement getUserpermissionByUserAndPermissionStmt
+                = getUserpermissionByUserAndPermissionStmts.get(conn);
+        if (getUserpermissionByUserAndPermissionStmt == null) {
+            getUserpermissionByUserAndPermissionStmt
+                    = conn.prepareStatement(getUserpermissionByUserAndPermissionSqlString);
+            getUserpermissionByUserAndPermissionStmts.put(conn, getUserpermissionByUserAndPermissionStmt);
+        }
+
+        getUserpermissionByUserAndPermissionStmt.setString(1, user.getUsername());
+        getUserpermissionByUserAndPermissionStmt.setString(2, permission);
+        ResultSet rs = getUserpermissionByUserAndPermissionStmt.executeQuery();
+
+        connPool.releaseConnection(conn);
+        return rs.next();
+    }
+
     private DBAccess() throws ClassNotFoundException {
         connPool = DBConnectionPool.getInstance();
     }
@@ -530,11 +614,19 @@ public class DBAccess {
     public static void main(String[] args) {
         try {
             DBAccess dba = DBAccess.getInstance();
-            for (Topic t : dba.getAllTopics()) {
-                System.out.println(t.getTitle());
-            }
+            
+            
+            
+            User admin = new User("admin", "", "", "", LocalDate.now());
+            User user = new User("user", "", "", "", LocalDate.now());
+            System.out.println(dba.hasUserPermission(user, "CREATE_TOPIC"));
+            System.out.println(dba.hasUserPermission(user, "CREATE_COMMENT"));
+            System.out.println(dba.hasUserPermission(user, "CREATE_CATEGORY"));
+            System.out.println(dba.hasUserPermission(admin, "CREATE_CATEGORY"));
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(DBAccess.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-            System.out.println(ex.toString());
+            Logger.getLogger(DBAccess.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
