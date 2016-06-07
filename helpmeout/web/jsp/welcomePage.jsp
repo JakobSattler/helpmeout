@@ -27,7 +27,7 @@
                 {
                     $("#main").remove().insertAfter($("#login"));
                 } else {
-                    $("#main").remove().insertBefore($("#side"));
+                    $("#main").remove().insertBefore($("#login"));
                 }
             }
         </script>
@@ -50,8 +50,8 @@
             dba = DBAccess.getInstance();
             user = (User) session.getAttribute("user");
         %>
-        <jsp:include page="/css/cssmenu/index.html"></jsp:include>
-            <form action="WelcomePageServlet" method="POST">
+        <jsp:include page="/css/cssmenu/index_1.jsp"></jsp:include>
+           
             <% if (session.getAttribute("loggedIn") != null) {
                     if ((boolean) session.getAttribute("loggedIn")) {
                         loggedIn = true;
@@ -73,8 +73,37 @@
                 <div id="head">
                     <h1>Help Me out!</h1>
                 </div>
+                 <form action="WelcomePageServlet" method="POST">
+                <div id="login">
+                    <% if (loggedIn) {%>
+                    <h2>Willkommen <%=user.getUsername()%></h2>
+                    <input type="hidden" value="logout" name="logout" id="logout"/>
+                    <input type="submit" value="Abmelden" />
+                    <% } else {%>
+                    <h2>Login</h2>
+                    <table border="0">
+                        <tbody>
+                            <tr>
+                                <td>Benutzername:</td>
+                                <td><input type="text" name="username" value="" id="username"/></td>
+                            </tr>
+                            <tr>
+                                <td>Passwort:</td>
+                                <td><input type="password" name="password" value="" id="password"/></td>
+                            </tr>
+                            <tr>
+                                <td><input type="submit" value="Anmelden" /></td>
+                                <td><a href="RegisterPageServlet"><input type="button" value="Registrieren"/></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <c:if test="${loginError != null}">
+                        <label class="error"><c:out value="${loginError}"/></label>
+                    </c:if>
+                    <% }%>
+                </div>
+                </form>
                 <div id="main">
-
                     <c:choose>
                         <c:when test="${param.viewcategory != null}">
                             <c:forEach items="${categories}" var="category">
@@ -102,7 +131,7 @@
                                     <c:forEach items="${categories}" var="category">
                                         <c:if test="${category.categoryid == topic.categoryid}">
                                             <h3>
-                                                <c:out value="${category.title}"/>
+                                                <c:out value="${category.title} / ${topic.title}"/>
                                             </h3>
                                         </c:if>
                                     </c:forEach>
@@ -132,15 +161,16 @@
                                         </c:if>
                                         <c:set var="count" value="${count + 1}" scope="page"/>
                                     </c:forEach>
-                                                <%--  <c:if test="${param.loggedIn}"> --%>
-                                                <% if (loggedIn) {%>
-                                        <form action="NewCommentServlet">
-                                            <h2>Neuer Beitrag</h2>
+                                    <%--  <c:if test="${param.loggedIn}"> --%>
+                                    <% if (loggedIn) {%>
+                                    <form action="NewCommentServlet">
+                                        <h2>Neuer Beitrag</h2>
+                                        <input type="hidden" name="topicid" value="${param.viewtopic}" />
                                             <textarea name="text" rows="10" cols="110"></textarea>
                                             <input type="submit" value="posten" />
                                         </form>   
-                                        <% }%>
-                                  <%--  </c:if>--%>
+                                    <% }%>
+                                    <%--  </c:if>--%>
                                 </c:if>
                             </c:forEach>
                         </c:when>
@@ -161,45 +191,16 @@
                             </c:forEach>
                         </c:otherwise>
                     </c:choose>
-                    
+
                 </div>
-                <div id="side">
-                    <div id="login">
-                        <% if (loggedIn) {%>
-                        <h2>Willkommen <%=user.getUsername()%></h2>
-                        <input type="hidden" value="logout" name="logout" id="logout"/>
-                        <input type="submit" value="Abmelden" />
-                        <% } else {%>
-                        <h2>Login</h2>
-                        <table border="0">
-                            <tbody>
-                                <tr>
-                                    <td>Benutzername:</td>
-                                    <td><input type="text" name="username" value="" id="username"/></td>
-                                </tr>
-                                <tr>
-                                    <td>Passwort:</td>
-                                    <td><input type="password" name="password" value="" id="password"/></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="submit" value="Anmelden" /></td>
-                                    <td><a href="RegisterPageServlet"><input type="button" value="Registrieren"/></a></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <c:if test="${loginError != null}">
-                            <label class="error"><c:out value="${loginError}"/></label>
-                        </c:if>
-                        <% }%>
-                    </div>
-                    <div id="news">
-                        <% if (loggedIn) {%>
-                        <a href="NewTopicPageServlet">
-                            <input type="button" value="+ Neues Thema hinzufügen" />
-                        </a>
-                        <% }%>
-                    </div>
+
+                <div id="news">
+                    <br><br>
+                    <% if (loggedIn) {%>
+                    <a href="NewTopicPageServlet">
+                        <input type="button" value="+ Neues Thema hinzufügen" />
+                    </a>
+                    <% }%>
                 </div>
-        </form>
     </body>
 </html>

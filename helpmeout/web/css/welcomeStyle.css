@@ -169,16 +169,10 @@ input[type="submit"]:active, input[type="button"]:active {
     margin-bottom: 10px;
 }
 
-#side{
+#login{
     width:30%;
     height:auto;
-    float:left;
-}
-
-#login{
-    width:288px;
-    height:300px;
-    float:left;
+    float:right;
 }
 
 #news{
@@ -202,14 +196,9 @@ input[type="submit"]:active, input[type="button"]:active {
         flaot:left;
     }
 
-    #side{
-        width:30%;
-        float:right;
-    }
-
-    #login{
+    login{
         width:100%;
-        float:left;
+        float:right;
     }
 
     #news{
@@ -230,15 +219,11 @@ input[type="submit"]:active, input[type="button"]:active {
         width:100%;
     }
 
-    #side{
+    #login{
         width:100%;
         float:left;
     }
 
-    #login{
-        width:50%;
-        height: auto;
-    }
 
     #news{
         width:100%;
