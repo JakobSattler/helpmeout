@@ -65,9 +65,9 @@
                             <td><input type="submit" value="Registrieren"/></td>
                             <td><a href="WelcomePageServlet"><input type="button" value="Abbrechen" /></a></td>
                         </tr>
-
                         </tbody>
                     </table>
+                    <input type="hidden" value="<%=request.getAttribute("role")%>" name="role"/>
                     <label class="error" id="error">
                         <%=request.getAttribute("error") != null ? 
                                 request.getAttribute("error") : ""%>

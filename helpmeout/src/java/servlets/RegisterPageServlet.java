@@ -34,7 +34,9 @@ public class RegisterPageServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+        request.setAttribute("role", request.getParameter("role"));
         request.getRequestDispatcher("jsp/registerPage.jsp").forward(request, response);
+        
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -67,19 +69,21 @@ public class RegisterPageServlet extends HttpServlet {
             String username = request.getParameter("username");
             String password = request.getParameter("password");
             String email = request.getParameter("email");
-
+            String role = request.getParameter("role");
+            
             DBAccess dba = DBAccess.getInstance();
-            dba.createUser(username, password, email, "user");
+            dba.createUser(username, password, email, role);
             request.getRequestDispatcher("WelcomePageServlet").forward(request, response);
             System.out.println("!exists");
         } catch (DBAccess.UserAlreadyExistsException ex) {
             request.setAttribute("error", "Benutzername existiert bereits!");
-            System.out.println("exists");
+            processRequest(request, response);
+        } catch (NullPointerException ex) {
             processRequest(request, response);
         } catch (Exception ex) {
             Logger.getLogger(RegisterPageServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
     }
 
     /**

@@ -51,29 +51,32 @@
             user = (User) session.getAttribute("user");
         %>
         <jsp:include page="/css/cssmenu/index_1.jsp"></jsp:include>
-           
-            <% if (session.getAttribute("loggedIn") != null) {
-                    if ((boolean) session.getAttribute("loggedIn")) {
-                        loggedIn = true;
-                    }
+
+        <% if (session.getAttribute("loggedIn") != null) {
+                if ((boolean) session.getAttribute("loggedIn")) {
+                    loggedIn = true;
                 }
-                if (request.getParameter("topic") != null) {
-                    topic = dba.getTopic(Integer.parseInt(request.getParameter("topic")));
-                    category = dba.getCategory(topic.getCategoryid());
-                    pageID = "topic";
-                }
-                if (request.getParameter("category") != null) {
-                    category = dba.getCategory(Integer.parseInt(request.getParameter("category")));
-                    pageID = "category";
-                }
-                if (request.getParameter("pageID") != null) {
-                    pageID = request.getParameter("pageID");
-                }%>
-            <div id="container">
-                <div id="head">
-                    <h1>Help Me out!</h1>
-                </div>
-                 <form action="WelcomePageServlet" method="POST">
+            }
+            if (request.getParameter("topic") != null) {
+                topic = dba.getTopic(Integer.parseInt(request.getParameter("topic")));
+                category = dba.getCategory(topic.getCategoryid());
+                pageID = "topic";
+            }
+            if (request.getParameter("category") != null) {
+                category = dba.getCategory(Integer.parseInt(request.getParameter("category")));
+                pageID = "category";
+            }
+            if (request.getParameter("pageID") != null) {
+                pageID = request.getParameter("pageID");
+            }%>
+        <div id="container">
+            <div id="head">
+                <h1>Help Me out!</h1>
+            </div>
+            <form action="RegisterPageServlet" method="POST" id="roleForm">
+                <input type="hidden" value="user" name="role"/>
+            </form>
+            <form action="WelcomePageServlet" method="POST">
                 <div id="login">
                     <% if (loggedIn) {%>
                     <h2>Willkommen <%=user.getUsername()%></h2>
@@ -93,7 +96,7 @@
                             </tr>
                             <tr>
                                 <td><input type="submit" value="Anmelden" /></td>
-                                <td><a href="RegisterPageServlet"><input type="button" value="Registrieren"/></a></td>
+                                <td><input type="submit"  form="roleForm" value="Registrieren"/></td>
                             </tr>
                         </tbody>
                     </table>
@@ -102,80 +105,12 @@
                     </c:if>
                     <% }%>
                 </div>
-                </form>
-                <div id="main">
-                    <c:choose>
-                        <c:when test="${param.viewcategory != null}">
-                            <c:forEach items="${categories}" var="category">
-                                <c:if test="${category.categoryid == param.viewcategory}">
-                                    <a href="WelcomePageServlet?viewcategory=<c:out value="${category.categoryid}"/>">
-                                        <h3>
-                                            <c:out value="${category.title}"/>
-                                        </h3>
-                                    </a>
-                                    <c:forEach items="${topics}" var="topic">
-                                        <c:if test="${topic.categoryid == category.categoryid}">
-                                            <a href="WelcomePageServlet?viewtopic=<c:out value="${topic.topicid}"/>">
-                                                <p>
-                                                    <c:out value="${topic.title}"/>
-                                                </p>
-                                            </a>
-                                        </c:if>     
-                                    </c:forEach>
-                                </c:if>
-                            </c:forEach>
-                        </c:when>
-                        <c:when test="${param.viewtopic != null}">
-                            <c:forEach items="${topics}" var="topic">
-                                <c:if test="${topic.topicid == param.viewtopic}">
-                                    <c:forEach items="${categories}" var="category">
-                                        <c:if test="${category.categoryid == topic.categoryid}">
-                                            <h3>
-                                                <c:out value="${category.title} / ${topic.title}"/>
-                                            </h3>
-                                        </c:if>
-                                    </c:forEach>
-
-                                    <c:set var="count" value="0" scope="page" /> 
-                                    <c:forEach items="${comments}" var="comment">
-                                        <c:if test="${comment.topicid == topic.topicid}">
-                                            <p><b><c:out value="${comment.username}"/>:</b>
-                                                <c:out value="${comment.editDate}"/></p>
-                                                <c:choose>
-                                                    <c:when test="${count % 5 == 0}">
-                                                    <div id="commentN1"><c:out value="${comment.text}"/></div>
-                                                </c:when>
-                                                <c:when test="${count % 5 == 1}">
-                                                    <div id="commentN2"><c:out value="${comment.text}"/></div>
-                                                </c:when>
-                                                <c:when test="${count % 5 == 2}">
-                                                    <div id="commentN3"><c:out value="${comment.text}"/></div>
-                                                </c:when>
-                                                <c:when test="${count % 5 == 3}">
-                                                    <div id="commentN4"><c:out value="${comment.text}"/></div>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <div id="commentN5"><c:out value="${comment.text}"/></div>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </c:if>
-                                        <c:set var="count" value="${count + 1}" scope="page"/>
-                                    </c:forEach>
-                                    <%--  <c:if test="${param.loggedIn}"> --%>
-                                    <% if (loggedIn) {%>
-                                    <form action="NewCommentServlet">
-                                        <h2>Neuer Beitrag</h2>
-                                        <input type="hidden" name="topicid" value="${param.viewtopic}" />
-                                            <textarea name="text" rows="10" cols="110"></textarea>
-                                            <input type="submit" value="posten" />
-                                        </form>   
-                                    <% }%>
-                                    <%--  </c:if>--%>
-                                </c:if>
-                            </c:forEach>
-                        </c:when>
-                        <c:otherwise>
-                            <c:forEach items="${categories}" var="category">
+            </form>
+            <div id="main">
+                <c:choose>
+                    <c:when test="${param.viewcategory != null}">
+                        <c:forEach items="${categories}" var="category">
+                            <c:if test="${category.categoryid == param.viewcategory}">
                                 <a href="WelcomePageServlet?viewcategory=<c:out value="${category.categoryid}"/>">
                                     <h3>
                                         <c:out value="${category.title}"/>
@@ -184,23 +119,91 @@
                                 <c:forEach items="${topics}" var="topic">
                                     <c:if test="${topic.categoryid == category.categoryid}">
                                         <a href="WelcomePageServlet?viewtopic=<c:out value="${topic.topicid}"/>">
-                                            <p><c:out value="${topic.title}"/></p>
+                                            <p>
+                                                <c:out value="${topic.title}"/>
+                                            </p>
                                         </a>
+                                    </c:if>     
+                                </c:forEach>
+                            </c:if>
+                        </c:forEach>
+                    </c:when>
+                    <c:when test="${param.viewtopic != null}">
+                        <c:forEach items="${topics}" var="topic">
+                            <c:if test="${topic.topicid == param.viewtopic}">
+                                <c:forEach items="${categories}" var="category">
+                                    <c:if test="${category.categoryid == topic.categoryid}">
+                                        <h3>
+                                            <c:out value="${category.title} / ${topic.title}"/>
+                                        </h3>
                                     </c:if>
                                 </c:forEach>
+
+                                <c:set var="count" value="0" scope="page" /> 
+                                <c:forEach items="${comments}" var="comment">
+                                    <c:if test="${comment.topicid == topic.topicid}">
+                                        <p><b><c:out value="${comment.username}"/>:</b>
+                                            <c:out value="${comment.editDate}"/></p>
+                                            <c:choose>
+                                                <c:when test="${count % 5 == 0}">
+                                                <div id="commentN1"><c:out value="${comment.text}"/></div>
+                                            </c:when>
+                                            <c:when test="${count % 5 == 1}">
+                                                <div id="commentN2"><c:out value="${comment.text}"/></div>
+                                            </c:when>
+                                            <c:when test="${count % 5 == 2}">
+                                                <div id="commentN3"><c:out value="${comment.text}"/></div>
+                                            </c:when>
+                                            <c:when test="${count % 5 == 3}">
+                                                <div id="commentN4"><c:out value="${comment.text}"/></div>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <div id="commentN5"><c:out value="${comment.text}"/></div>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:if>
+                                    <c:set var="count" value="${count + 1}" scope="page"/>
+                                </c:forEach>
+                                <%--  <c:if test="${param.loggedIn}"> --%>
+                                <% if (loggedIn) {%>
+                                <form action="NewCommentServlet">
+                                    <h2>Neuer Beitrag</h2>
+                                    <input type="hidden" name="topicid" value="${param.viewtopic}" />
+                                    <textarea name="text" rows="10" cols="110"></textarea>
+                                    <input type="submit" value="posten" />
+                                </form>   
+                                <% }%>
+                                <%--  </c:if>--%>
+                            </c:if>
+                        </c:forEach>
+                    </c:when>
+                    <c:otherwise>
+                        <c:forEach items="${categories}" var="category">
+                            <a href="WelcomePageServlet?viewcategory=<c:out value="${category.categoryid}"/>">
+                                <h3>
+                                    <c:out value="${category.title}"/>
+                                </h3>
+                            </a>
+                            <c:forEach items="${topics}" var="topic">
+                                <c:if test="${topic.categoryid == category.categoryid}">
+                                    <a href="WelcomePageServlet?viewtopic=<c:out value="${topic.topicid}"/>">
+                                        <p><c:out value="${topic.title}"/></p>
+                                    </a>
+                                </c:if>
                             </c:forEach>
-                        </c:otherwise>
-                    </c:choose>
+                        </c:forEach>
+                    </c:otherwise>
+                </c:choose>
 
-                </div>
+            </div>
 
-                <div id="news">
-                    <br><br>
-                    <% if (loggedIn) {%>
-                    <a href="NewTopicPageServlet">
-                        <input type="button" value="+ Neues Thema hinzufügen" />
-                    </a>
-                    <% }%>
-                </div>
+            <div id="news">
+                <br><br>
+                <% if (loggedIn) {%>
+                <a href="NewTopicPageServlet">
+                    <input type="button" value="+ Neues Thema hinzufügen" />
+                </a>
+                <% }%>
+            </div>
     </body>
 </html>
