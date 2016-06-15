@@ -409,7 +409,7 @@ public class DBAccess {
             switch (role.toLowerCase()) {
                 case "admin":
                     permissions = new String[]{"CREATE_TOPIC", "CREATE_COMMENT",
-                        "CREATE_CATEGORY"};
+                        "CREATE_CATEGORY", "CREATE_ADMIN"};
                     createUserPermissions(username, permissions);
                     break;
                 case "user":
@@ -570,7 +570,7 @@ public class DBAccess {
         return loggedIn;
     }
 
-    //Create comment
+    //get permission by user
     private final HashMap<Connection, PreparedStatement> getUserpermissionByUserAndPermissionStmts
             = new HashMap<>();
     private final String getUserpermissionByUserAndPermissionSqlString
@@ -607,6 +607,45 @@ public class DBAccess {
         return rs.next();
     }
 
+    private final HashMap<Connection, PreparedStatement> getUserpermissionsByUserStmts
+            = new HashMap<>();
+    private final String getUserpermissionsByUserSqlString
+            = "SELECT permissiondesc "
+            + "FROM userpermission "
+            + "WHERE username=?";
+    
+    /**
+     *
+     * Returns all permissions of a user<br>
+     * <br>
+     * <b>Permissions:</b><br>
+     * CREATE_TOPIC, CREATE_COMMENT, CREATE_CATEGORY, CREATE_ADMIN
+     *
+     * @param user
+     * @return
+     * @throws SQLException
+     * @throws Exception 
+     */
+    public LinkedList<String> getPermissionsByUser(User user) throws SQLException, Exception {
+        Connection conn = connPool.getConnection();
+        PreparedStatement getUserpermissionsByUserStmt
+                = getUserpermissionsByUserStmts.get(conn);
+        if (getUserpermissionsByUserStmt == null) {
+            getUserpermissionsByUserStmt
+                    = conn.prepareStatement(getUserpermissionsByUserSqlString);
+            getUserpermissionsByUserStmts.put(conn, getUserpermissionsByUserStmt);
+        }
+        
+        getUserpermissionsByUserStmt.setString(1, user.getUsername());
+        ResultSet rs = getUserpermissionsByUserStmt.executeQuery();
+
+        LinkedList<String> permissions = new LinkedList<>();
+        while(rs.next()){
+            permissions.add(rs.getString("permissiondesc"));
+        }
+        return permissions;
+    }
+
     private DBAccess() throws ClassNotFoundException {
         connPool = DBConnectionPool.getInstance();
     }
@@ -614,15 +653,11 @@ public class DBAccess {
     public static void main(String[] args) {
         try {
             DBAccess dba = DBAccess.getInstance();
-            
-            
-            
+
             User admin = new User("admin", "", "", "", LocalDate.now());
             User user = new User("user", "", "", "", LocalDate.now());
-            System.out.println(dba.hasUserPermission(user, "CREATE_TOPIC"));
-            System.out.println(dba.hasUserPermission(user, "CREATE_COMMENT"));
-            System.out.println(dba.hasUserPermission(user, "CREATE_CATEGORY"));
-            System.out.println(dba.hasUserPermission(admin, "CREATE_CATEGORY"));
+            System.out.println(dba.getPermissionsByUser(user));
+            System.out.println(dba.getPermissionsByUser(admin));
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(DBAccess.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {

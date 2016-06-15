@@ -96,6 +96,7 @@ public class WelcomePageServlet extends HttpServlet {
                                 User user = dba.getUserByUsername(username);
                                 String sessionID = user.getPassword() + user.getSalt();
                                 request.getSession().setAttribute("user", user);
+                                
                                 request.getSession().setAttribute("sessionID", sessionID);
                                 Cookie cookie = new Cookie("sessionID",
                                         user.getPassword() + user.getSalt());
