@@ -491,6 +491,34 @@ public class DBAccess {
         return loginIsCorrect;
     }
 
+    
+    //Create category
+    private final HashMap<Connection, PreparedStatement> createCategoryStmts
+            = new HashMap<>();
+    private final String createCategorySqlString = "INSERT INTO category "
+            + "(title) "
+            + "VALUES (?)";
+
+    /**
+     * Saves a category to the database
+     *
+     * @param title Title of the topic
+     * @throws Exception
+     */
+    public void createCategory(String title) throws Exception {
+        Connection conn = connPool.getConnection();
+        PreparedStatement createCategoryStmt = createCategoryStmts.get(conn);
+        if (createCategoryStmt == null) {
+            createCategoryStmt = conn.prepareStatement(createCategorySqlString);
+            createCategoryStmts.put(conn, createCategoryStmt);
+        }
+
+        createCategoryStmt.setString(1, title);
+        createCategoryStmt.executeUpdate();
+
+        connPool.releaseConnection(conn);
+    }
+    
     //Create topic
     private final HashMap<Connection, PreparedStatement> createTopicStmts
             = new HashMap<>();
@@ -664,6 +692,7 @@ public class DBAccess {
             Logger.getLogger(DBAccess.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
 
     public class UserAlreadyExistsException extends Exception {
 

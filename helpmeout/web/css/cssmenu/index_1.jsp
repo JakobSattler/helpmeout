@@ -14,7 +14,7 @@
 </head>
 <body>-->
 
-<div id='cssmenu'>
+<div>
     <%! private DBAccess dba;
         private LinkedList<Category> categories = new LinkedList<>();
         private LinkedList<Topic> topics = new LinkedList<>();
@@ -22,10 +22,10 @@
     <%  dba = DBAccess.getInstance();
         categories = dba.getAllCategories();
         topics = dba.getAllTopics();%>
-    <ul>
-        <li class='active'><a href='WelcomePageServlet?pageID=overview'><span>Startseite</span></a></li>
+    <ul id="menu-bar">
+        <li><a href='WelcomePageServlet?pageID=overview'><span>Startseite</span></a></li>
             <% for (Category cat : categories) {%>
-        <li class='active'><a href='WelcomePageServlet?viewcategory=<%=cat.getCategoryid()%>'><span><%=cat.getTitle()%> </span></a>
+        <li><a href='WelcomePageServlet?viewcategory=<%=cat.getCategoryid()%>'><span><%=cat.getTitle()%> </span></a>
             <ul>
                 <% for (Topic top : topics) {
                 if (top.getCategoryid() == cat.getCategoryid()) {%>
@@ -39,7 +39,7 @@
         <!--<ul>
            <li><a><span></span></a></li>
         </ul>-->
-        <li class='last'><a href='MyPageServlet'><span>Mein Konto</span></a></li>
+        <li><a href='MyPageServlet'><span>Mein Konto</span></a></li>
     </ul>
 </div>
 

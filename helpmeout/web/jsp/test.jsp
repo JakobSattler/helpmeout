@@ -40,7 +40,7 @@
             LinkedList<Topic> topics = new LinkedList<>();
             Topic topic;
             LinkedList<Comment> comments = new LinkedList<>();%>
-        <jsp:include page="/css/cssmenu/index.html"></jsp:include>
+        <jsp:include page="/css/cssmenu/index_1.jsp"></jsp:include>
             <form action="WelcomePageServlet" method="POST">
             <% if (session.getAttribute("loggedIn") != null) {
                     if ((boolean) session.getAttribute("loggedIn")) {

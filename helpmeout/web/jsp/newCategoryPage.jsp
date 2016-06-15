@@ -1,5 +1,5 @@
 <%-- 
-    Document   : topicPage
+    Document   : newCategoryPage
     Created on : 25.04.2016, 09:23:25
     Author     : Julia
 --%>
@@ -21,9 +21,7 @@
             function validate(form) {
                 var error = document.getElementById("error");
 
-                if (form.category.value === "" || form.category.value === null
-                        || form.title.value === "" || form.title.value === null
-                        || form.text.value === "" || form.text.value === null) {
+                if (form.title.value === "" || form.title.value === null) {
                     error.textContent = "Es müssen alle Felder ausgefüllt sein!";
                     return false;
                 }
@@ -37,30 +35,18 @@
         <%! LinkedList<Category> categories = new LinkedList<>();%>
         <div id="container">
             <div id="head">
-                <h1>Neues Thema hinzufügen</h1>
+                <h1>Neue Kategorie hinzufügen</h1>
             </div>
-            <form action="NewTopicPageServlet" method="POST" onsubmit="return validate(this)">
+            <form action="NewCategoryServlet" method="POST" onsubmit="return validate(this)">
                 <div id="main">
-                    <% if (application.getAttribute("categories") != null) {
-                            categories = (LinkedList<Category>) application.getAttribute("categories");
+                    <% if (application.getAttribute("loggedIn") != null) {
+                            
                         }%>
                     <table border="0">
                         <tbody>
                             <tr>
                                 <td>Kategorie:</td>
-                                <td ><select name="category" style="width:100%;">
-                                        <% for (Category cat : categories) {%>
-                                        <option value="<%=cat.getCategoryid()%>"><%=cat.getTitle()%></option>
-                                        <% }%>
-                                    </select></td>
-                            </tr>
-                            <tr>
-                                <td>Titel:</td>
-                                <td><input type="text" name="title" value="" style="width:100%;"/></td>
-                            </tr>
-                            <tr>
-                                <td>Text:</td>
-                                <td><textarea name="text" rows="10" cols="30" style="width:100%;"></textarea></td>
+                                <td><input type="text" name="title" value="" /></td>
                             </tr>
                             <tr>
                                 <td><a href="WelcomePageServlet"><input type="button" value="abbrechen" /></a></td>
@@ -68,6 +54,7 @@
                             </tr>
                         </tbody>
                     </table>
+                    <input type="submit" value="Kategorie speichern und neues Thema hinzufügen" />
                     <label class="error" id="error">
                         <%=request.getAttribute("error") != null
                                 ? request.getAttribute("error") : ""%>

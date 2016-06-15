@@ -36,7 +36,7 @@
     </head>
     <body>
         <div id="container">
-            <jsp:include page="/css/cssmenu/index.html"></jsp:include>
+            <jsp:include page="/css/cssmenu/index_1.jsp"></jsp:include>
             <div id="head">
                 <h1>Help Me out! - Registrierung</h1>
             </div>

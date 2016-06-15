@@ -18,7 +18,7 @@
         <title>Mein Konto</title>
     </head>
     <body>
-        <jsp:include page="/css/cssmenu/index.html"></jsp:include>
+         <jsp:include page="/css/cssmenu/index_1.jsp"></jsp:include>
     <div id="container">
         <div id="head"> 
             <h1>Mein Konto</h1>
