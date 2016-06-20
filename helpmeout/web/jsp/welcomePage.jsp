@@ -169,7 +169,7 @@
                                 <form action="NewCommentServlet">
                                     <h2>Neuer Beitrag</h2>
                                     <input type="hidden" name="topicid" value="${param.viewtopic}" />
-                                    <textarea name="text" rows="10" cols="110"></textarea>
+                                    <textarea name="text" rows="10" cols="75"></textarea>
                                     <input type="submit" value="posten" />
                                 </form>   
                                 <% }%>
