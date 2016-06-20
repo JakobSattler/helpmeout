@@ -100,7 +100,4 @@ public class NewCommentServlet extends HttpServlet {
             Logger.getLogger(NewCommentServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    
-
 }

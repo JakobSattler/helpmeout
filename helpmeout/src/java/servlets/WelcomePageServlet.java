@@ -65,7 +65,7 @@ public class WelcomePageServlet extends HttpServlet {
             throws ServletException, IOException {
         processRequest(request, response);
         request.getRequestDispatcher("jsp/welcomePage.jsp").forward(request, response);
-        
+
     }
 
     /**
@@ -96,7 +96,7 @@ public class WelcomePageServlet extends HttpServlet {
                                 User user = dba.getUserByUsername(username);
                                 String sessionID = user.getPassword() + user.getSalt();
                                 request.getSession().setAttribute("user", user);
-                                
+                                request.getSession().setAttribute("pemrissions", dba.getPermissionsByUser(user));
                                 request.getSession().setAttribute("sessionID", sessionID);
                                 Cookie cookie = new Cookie("sessionID",
                                         user.getPassword() + user.getSalt());
@@ -109,7 +109,6 @@ public class WelcomePageServlet extends HttpServlet {
                             }
                         } else if (request.getParameter("logout") != null
                                 && !request.getParameter("logout").equals("")) {
-                            System.out.println("logout");
                             Cookie[] cookies = request.getCookies();
                             for (Cookie cookie : cookies) {
                                 if (cookie.getName().equals("sessionID")) {
@@ -128,7 +127,7 @@ public class WelcomePageServlet extends HttpServlet {
                     }
                 }
             }
-            
+
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(WelcomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -148,6 +147,4 @@ public class WelcomePageServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config); //To change body of generated methods, choose Tools | Templates.
     }
-
-    
 }

@@ -361,7 +361,6 @@ public class DBAccess {
             String salt = rs.getString("salt");
             LocalDate registerDate = rs.getDate("registerdate").toLocalDate();
             user = new User(name, email, password, salt, registerDate);
-            System.out.println(user);
         }
         connPool.releaseConnection(conn);
         return user;
@@ -386,7 +385,6 @@ public class DBAccess {
      */
     public void createUser(String username, String password,
             String email, String role) throws UserAlreadyExistsException, Exception {
-        System.out.println(getUserByUsername(username) == null);
         if (getUserByUsername(username) == null) {
             Connection conn = connPool.getConnection();
 

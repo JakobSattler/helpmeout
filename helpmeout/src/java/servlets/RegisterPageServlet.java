@@ -74,7 +74,6 @@ public class RegisterPageServlet extends HttpServlet {
             DBAccess dba = DBAccess.getInstance();
             dba.createUser(username, password, email, role);
             request.getRequestDispatcher("WelcomePageServlet").forward(request, response);
-            System.out.println("!exists");
         } catch (DBAccess.UserAlreadyExistsException ex) {
             request.setAttribute("error", "Benutzername existiert bereits!");
             processRequest(request, response);
